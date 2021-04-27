@@ -1,6 +1,0 @@
-[submodule "deps/cpp-httplib"]
-	path = deps/cpp-httplib
-	url = https://github.com/yhirose/cpp-httplib
-[submodule "deps/inja"]
-	path = deps/inja
-	url = https://github.com/pantor/inja.git
