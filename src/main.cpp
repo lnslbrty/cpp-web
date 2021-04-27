@@ -1,4 +1,5 @@
 #include "EventManager.hpp"
+#include "Filesystem.hpp"
 
 #include <event2/buffer.h>
 
@@ -64,12 +65,24 @@ int main(int argc, char **argv) {
   char const *host = "127.0.0.1";
   uint16_t port = 9000;
 
+  if (argc <= 1) {
+    std::cout << "usage: cpp-web [HOST] [PORT] [WWWROOTs..]" << std::endl;
+  }
+
   if (argc > 1) {
     host = argv[1];
   }
   if (argc > 2) {
     port = atoi(argv[2]);
   }
+
+  Filesystem fs;
+  for (auto i = 3; i < argc; ++i) {
+    if (fs.Scan(argv[i]) != true) {
+      return 1;
+    }
+  }
+  fs.Scan();
 
   EventManager evmgr;
   evmgr.setDefaultCallback(example_inja_render, {});
