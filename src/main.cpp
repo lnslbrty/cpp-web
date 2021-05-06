@@ -1,3 +1,5 @@
+#include "ContentManager.hpp"
+#include "content/blog/Blog.hpp"
 #include "EventManager.hpp"
 #include "Filesystem.hpp"
 
@@ -83,6 +85,11 @@ int main(int argc, char **argv) {
     }
   }
   fs.Scan();
+
+  Blog blog;
+
+  ContentManager ctmgr;
+  ctmgr.Register(blog);
 
   EventManager evmgr;
   evmgr.setDefaultCallback(example_inja_render, {});

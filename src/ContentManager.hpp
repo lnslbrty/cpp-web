@@ -3,12 +3,17 @@
 
 #include "Content.hpp"
 
+#include <map>
+
 class ContentManager {
 public:
   ContentManager() {}
   ~ContentManager() {}
 
-  bool Register(Content ctnt);
+  bool Register(Content const & ctnt);
+
+private:
+  std::map<std::string, Content const &> m_ContentModules;
 };
 
 #endif

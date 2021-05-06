@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.1.9)
 project(cpp-web)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -16,7 +16,7 @@ if(NOT EXISTS "${INJA_SRCDIR}/single_include/inja/inja.hpp")
 endif()
 
 include_directories(${CPP_HTTPLIB_SRCDIR} ${INJA_SRCDIR}/single_include ${INJA_SRCDIR}/third_party/include)
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(cpp-web ${SOURCES})
 #target_compile_definitions(cpp-web PUBLIC CPPHTTPLIB_THREAD_POOL_COUNT=4)
 if(CMAKE_BUILD_TYPE MATCHES Release)
