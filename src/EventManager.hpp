@@ -2,6 +2,7 @@
 #define EVENT_MANAGER_H 1
 
 #include "ContentManager.hpp"
+#include "Filesystem.hpp"
 
 #include <event2/buffer.h>
 #include <event2/event.h>
