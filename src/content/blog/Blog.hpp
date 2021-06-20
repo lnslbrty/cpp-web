@@ -6,10 +6,18 @@
 class Blog : public Content
 {
 public:
-  bool Init(std::string & basePath);
-  void Shutdown();
-  bool Render();
-  Redirections const GetRedirections();
+  explicit Blog(std::string basePath);
+
+  bool Init(void);
+  void Shutdown(void);
+  bool Render(std::string & out);
+
+  std::string const & GetBasePath() const;
+  Redirections const & GetRedirections() const;
+
+private:
+  std::string m_BasePath;
+  Redirections m_Redirections;
 };
 
 #endif

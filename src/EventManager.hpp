@@ -1,6 +1,8 @@
 #ifndef EVENT_MANAGER_H
 #define EVENT_MANAGER_H 1
 
+#include "ContentManager.hpp"
+
 #include <event2/buffer.h>
 #include <event2/event.h>
 #include <event2/http.h>
@@ -20,7 +22,7 @@ struct ev_callback {
 
 typedef std::tuple<std::string, struct ev_callback> EvUrlCallback;
 
-static inline void default_evhttp_callback(struct evhttp_request *const req,
+static inline void default_evhttp_callback(struct evhttp_request * const req,
                                            EvUserData ud) {
   (void)ud;
 
@@ -42,12 +44,14 @@ public:
   ~EventManager();
 
   bool Init(std::string = "127.0.0.1", uint16_t port = 9000);
-  void setDefaultCallback(EvFunction fn, EvUserData dat);
-  void addCallback(std::string url, EvFunction fn, EvUserData dat);
+  void SetDefaultCallback(EvFunction fn, EvUserData dat);
+  void AddCallback(std::string url, EvFunction fn, EvUserData dat);
+  void AddContentManager(ContentManager const & cmgr);
 
 private:
   struct ev_callback m_DefaultCallback;
   std::vector<EvUrlCallback> m_UrlCallbacks;
+  ContentModules m_ContentModules;
 
   struct event_config *m_EvConfig = nullptr;
   struct event_base *m_EvBase = nullptr;

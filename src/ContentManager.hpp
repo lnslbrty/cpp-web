@@ -3,17 +3,24 @@
 
 #include "Content.hpp"
 
-#include <map>
+#include <memory>
+#include <unordered_map>
+
+typedef std::unordered_map<std::string, std::shared_ptr<Content>> ContentModules;
 
 class ContentManager {
 public:
   ContentManager() {}
-  ~ContentManager() {}
+  ~ContentManager() { ShutdownAll(); }
 
-  bool Register(Content const & ctnt);
+  bool RegisterModule(std::shared_ptr<Content> ctnt);
+  bool InitAll(void);
+  void ShutdownAll(void);
+  bool Render(std::string & basePath);
+  ContentModules const & GetAllModules() const;
 
 private:
-  std::map<std::string, Content const &> m_ContentModules;
+  ContentModules m_ContentModules;
 };
 
 #endif

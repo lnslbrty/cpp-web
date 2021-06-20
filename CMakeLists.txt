@@ -1,13 +1,9 @@
 cmake_minimum_required(VERSION 3.1.9)
 project(cpp-web)
 
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release ... FORCE)
-endif()
-
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++17")
-set(CMAKE_CXX_FLAGS_DEBUG "-g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-Os -fno-pic -fomit-frame-pointer -flto -fno-rtti -ffunction-sections -fdata-sections -fsanitize=address -fsanitize=leak -fsanitize=leak")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fpic -fomit-frame-pointer -flto -fno-rtti -ffunction-sections -fdata-sections -fsanitize=address -fsanitize=leak")
+set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 set(CMAKE_EXE_LINKER_FLAGS "-flto")
 
 set(INJA_SRCDIR "${PROJECT_SOURCE_DIR}/deps/inja" CACHE STRING "Path to the inja source directory.")
@@ -19,6 +15,7 @@ include_directories(${CPP_HTTPLIB_SRCDIR} ${INJA_SRCDIR}/single_include ${INJA_S
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(cpp-web ${SOURCES})
 #target_compile_definitions(cpp-web PUBLIC CPPHTTPLIB_THREAD_POOL_COUNT=4)
+#target_compile_options(cpp-web PUBLIC "-std=c++14")
 if(CMAKE_BUILD_TYPE MATCHES Release)
     set_target_properties(cpp-web PROPERTIES LINK_FLAGS "-no-pie -flto -Wl,--gc-sections -Wl,-z,norelro -Wl,--hash-style=gnu -Wl,--build-id=none")
 endif()

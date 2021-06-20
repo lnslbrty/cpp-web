@@ -1,23 +1,33 @@
 #include "Blog.hpp"
 
-bool Blog::Init(std::string & basePath)
+Blog::Blog(std::string basePath) : m_BasePath(basePath), m_Redirections()
 {
-  (void)basePath;
-
-  return false;
+    m_Redirections.push_back(basePath + "-data");
 }
 
-void Blog::Shutdown()
+bool Blog::Init(void)
+{
+  return true;
+}
+
+void Blog::Shutdown(void)
 {
 }
 
-bool Blog::Render()
+bool Blog::Render(std::string & out)
 {
-  return false;
+  out = "blog-bla";
+
+  return true;
 }
 
-Redirections const
-Blog::GetRedirections()
+std::string const & Blog::GetBasePath(void) const
 {
-    return Redirections();
+  return m_BasePath;
+}
+
+Redirections const &
+Blog::GetRedirections(void) const
+{
+  return m_Redirections;
 }

@@ -86,12 +86,20 @@ int main(int argc, char **argv) {
   }
   fs.Scan();
 
-  Blog blog;
-
   ContentManager ctmgr;
-  ctmgr.Register(blog);
+  ctmgr.RegisterModule(std::make_shared<Blog>("/blog"));
+
+  if (ctmgr.InitAll() == false)
+  {
+    std::cout << "InitAll() failed." << std::endl;
+    return 1;
+  }
 
   EventManager evmgr;
-  evmgr.setDefaultCallback(example_inja_render, {});
+  //evmgr.SetDefaultCallback(example_inja_render, {});
+  evmgr.AddCallback("/bla", example_inja_render, {});
+  evmgr.AddContentManager(ctmgr);
   evmgr.Init(host, port);
+
+  //ctmgr.ShutdownAll();
 }

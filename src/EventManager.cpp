@@ -9,11 +9,52 @@
 #include <signal.h>
 
 extern "C" {
-static void EvCallbackInterceptor(struct evhttp_request *const req,
+static void GenerateInternalErrorPage(struct evhttp_request * const req,
+                                      std::string text)
+{
+  evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type",
+                    "text/html");
+
+  struct evbuffer *const output = evbuffer_new();
+  if (output != nullptr) {
+    evbuffer_add(output, text.c_str(), text.size());
+    evhttp_send_reply(req, 500, "Internal Error", output);
+    evbuffer_free(output);
+  }
+}
+
+static void EvGenericInterceptor(struct evhttp_request *const req,
                                   void *ev_c_callback) {
   if (ev_c_callback != nullptr) {
     struct ev_callback *const evcb = (struct ev_callback *)ev_c_callback;
     evcb->cb(req, evcb->ud);
+  } else {
+    GenerateInternalErrorPage(req, "EvGenericInterceptor: ev_c_callback == nullptr");
+  }
+}
+
+static void EvContentManagerInterceptor(struct evhttp_request * const req,
+                                        void * ev_c_callback) {
+  if (ev_c_callback != nullptr) {
+    Content * const cntnt = (Content *)ev_c_callback;
+    std::string out;
+    if (cntnt->Render(out) == false) {
+      std::string text;
+      text = "ContentModule(\"" + cntnt->GetBasePath() + "\")->Render() failed.\n";
+      GenerateInternalErrorPage(req, text);
+    } else {
+      evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type",
+                        "text/html");
+
+      struct evbuffer *const output = evbuffer_new();
+      if (output != nullptr) {
+        evbuffer_add(output, out.c_str(), out.size());
+        evhttp_send_reply(req, 200, "OK", output);
+        evbuffer_free(output);
+      }
+    }
+  } else {
+    GenerateInternalErrorPage(req, "EvContentManagerInterceptor: ev_c_callback == nullptr");
   }
 }
 
@@ -63,14 +104,21 @@ bool EventManager::Init(std::string host, uint16_t port) {
     return false;
   }
 
-  for (auto &uc : m_UrlCallbacks) {
-    struct ev_callback *const evcb = &std::get<1>(uc);
-    if (evhttp_set_cb(m_EvHttp, std::get<0>(uc).c_str(), EvCallbackInterceptor,
+  for (auto & uc : m_UrlCallbacks) {
+    struct ev_callback * const evcb = &std::get<1>(uc);
+    if (evhttp_set_cb(m_EvHttp, std::get<0>(uc).c_str(), EvGenericInterceptor,
                       evcb) != 0) {
       return false;
     }
   }
-  evhttp_set_gencb(m_EvHttp, EvCallbackInterceptor, &m_DefaultCallback);
+  for (auto & cm : m_ContentModules) {
+    std::shared_ptr<Content> content = cm.second;
+    if (evhttp_set_cb(m_EvHttp, cm.first.c_str(), EvContentManagerInterceptor,
+                      content.get()) != 0) {
+      return false;
+    }
+  }
+  evhttp_set_gencb(m_EvHttp, EvGenericInterceptor, &m_DefaultCallback);
 
   m_EvSocket = evhttp_bind_socket_with_handle(m_EvHttp, host.c_str(), port);
   if (m_EvSocket == nullptr) {
@@ -91,11 +139,19 @@ bool EventManager::Init(std::string host, uint16_t port) {
   return true;
 }
 
-void EventManager::setDefaultCallback(EvFunction fn, EvUserData dat) {
+void EventManager::SetDefaultCallback(EvFunction fn, EvUserData dat) {
   m_DefaultCallback.cb = fn;
   m_DefaultCallback.ud = dat;
 }
 
-void EventManager::addCallback(std::string url, EvFunction fn, EvUserData dat) {
+void EventManager::AddCallback(std::string url, EvFunction fn, EvUserData dat) {
   m_UrlCallbacks.push_back(EvUrlCallback(url, {fn, dat}));
+}
+
+void EventManager::AddContentManager(ContentManager const & cmgr)
+{
+  ContentModules new_mods = m_ContentModules;
+
+  new_mods.insert(cmgr.GetAllModules().begin(), cmgr.GetAllModules().end());
+  m_ContentModules = new_mods;
 }
