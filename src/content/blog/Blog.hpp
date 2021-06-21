@@ -3,20 +3,20 @@
 
 #include "../../Content.hpp"
 
-class Blog : public Content
+class Blog : public TemplatedContent
 {
 public:
-  explicit Blog(std::string basePath);
+  explicit Blog(std::string baseUri, std::string templatePath);
 
   bool Init(void);
   void Shutdown(void);
-  bool Render(std::string & out);
+  bool Render(RequestResponse & rr, std::string & out);
 
-  std::string const & GetBasePath() const;
+  std::string const & GetBaseUri() const;
   Redirections const & GetRedirections() const;
 
 private:
-  std::string m_BasePath;
+  std::string m_BaseUri;
   Redirections m_Redirections;
 };
 

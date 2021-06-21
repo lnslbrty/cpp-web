@@ -13,14 +13,16 @@ void TemplatedContent::Shutdown()
 {
 }
 
-bool TemplatedContent::Render(std::string & out)
+bool TemplatedContent::Render(RequestResponse & rr, std::string & out)
 {
+  (void)rr;
+
   out = "tmpl";
 
   return false;
 }
 
-void TemplatedContent::SetTemplateData(nlohmann::json & data)
+void TemplatedContent::GetRequiredFiles(std::vector<std::string> & requiredFiles) const
 {
-  m_TemplateData = data;
+  requiredFiles.push_back(m_FilesystemPath);
 }

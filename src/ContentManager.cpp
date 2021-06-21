@@ -2,7 +2,7 @@
 
 bool ContentManager::RegisterModule(std::shared_ptr<Content> ctnt)
 {
-  std::string const & basePath = ctnt->GetBasePath();
+  std::string const & basePath = ctnt->GetBaseUri();
   Redirections const & rs = ctnt->GetRedirections();
 
   m_ContentModules[basePath] = ctnt;

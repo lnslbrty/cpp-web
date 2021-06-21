@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
   fs.Scan();
 
   ContentManager ctmgr;
-  ctmgr.RegisterModule(std::make_shared<Blog>("/blog"));
+  ctmgr.RegisterModule(std::make_shared<Blog>("/blog", "index.html"));
 
   if (ctmgr.InitAll() == false)
   {

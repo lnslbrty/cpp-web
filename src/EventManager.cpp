@@ -37,10 +37,11 @@ static void EvContentManagerInterceptor(struct evhttp_request * const req,
                                         void * ev_c_callback) {
   if (ev_c_callback != nullptr) {
     Content * const cntnt = (Content *)ev_c_callback;
+    RequestResponse rr(req);
     std::string out;
-    if (cntnt->Render(out) == false) {
+    if (cntnt->Render(rr, out) == false) {
       std::string text;
-      text = "ContentModule(\"" + cntnt->GetBasePath() + "\")->Render() failed.\n";
+      text = "ContentModule(\"" + cntnt->GetBaseUri() + "\")->Render() failed.\n";
       GenerateInternalErrorPage(req, text);
     } else {
       evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type",
@@ -49,7 +50,7 @@ static void EvContentManagerInterceptor(struct evhttp_request * const req,
       struct evbuffer *const output = evbuffer_new();
       if (output != nullptr) {
         evbuffer_add(output, out.c_str(), out.size());
-        evhttp_send_reply(req, 200, "OK", output);
+        evhttp_send_reply(req, HTTP_OK, "OK", output);
         evbuffer_free(output);
       }
     }
@@ -64,6 +65,26 @@ static void do_term(int sig, short events, void *arg) {
   event_base_loopbreak(base);
   fprintf(stderr, "Got %i, Terminating\n", sig);
 }
+}
+
+static inline void default_evhttp_callback(struct evhttp_request * const req,
+                                           EvUserData ud) {
+  (void)ud;
+
+  evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type",
+                    "text/html");
+
+  struct evbuffer *const output = evbuffer_new();
+  if (output != nullptr) {
+    evbuffer_add_printf(output, "%s\n",
+                        "<html><body><b>default page</b></body></html>");
+    evhttp_send_reply(req, 200, "OK", output);
+    evbuffer_free(output);
+  }
+}
+
+EventManager::EventManager() : m_DefaultCallback({default_evhttp_callback, nullptr})
+{
 }
 
 EventManager::~EventManager() {
