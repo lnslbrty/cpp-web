@@ -5,76 +5,121 @@
 #include <fstream>
 #include <iostream>
 
-static std::string make_path_relative(std::string &path, std::string &root) {
-  return std::filesystem::relative(path, root);
+static std::string make_path_relative(std::string & path, std::string & root)
+{
+    return std::filesystem::relative(path, root);
 }
 
-bool Filesystem::AddSingleFile(std::string path, std::string root) {
-  std::ifstream ifs(path, std::ios::binary | std::ios::ate);
+bool Filesystem::AddSingleFile(std::string path, std::string root)
+{
+    std::ifstream ifs(path, std::ios::binary | std::ios::ate);
 
-  if (!ifs) {
-    return false;
-  }
+    if (!ifs)
+    {
+        return false;
+    }
 
-  auto end = ifs.tellg();
-  if (end <= 0) {
-    return false;
-  }
-  if (!ifs.seekg(0, std::ios::beg)) {
-    return false;
-  }
+    auto end = ifs.tellg();
+    if (end <= 0)
+    {
+        return false;
+    }
+    if (!ifs.seekg(0, std::ios::beg))
+    {
+        return false;
+    }
 
-  auto size = std::size_t(end - ifs.tellg());
+    auto size = std::size_t(end - ifs.tellg());
 
-  if (size == 0) {
-    return false;
-  }
+    if (size == 0)
+    {
+        return false;
+    }
 
-  struct file_data fd = {};
-  try {
-    fd.data.reserve(size);
-  } catch (const std::exception &e) {
-    return false;
-  }
+    struct file_data fd = {};
+    try
+    {
+        fd.data.resize(size);
+    }
+    catch (const std::exception & e)
+    {
+        return false;
+    }
 
-  if (!ifs.read((char *)fd.data.data(), fd.data.size())) {
-    return false;
-  }
+    if (!ifs.read((char *)fd.data.data(), fd.data.size()))
+    {
+        return false;
+    }
 
-  std::string relpath = make_path_relative(path, root);
-  if (m_Files.count(relpath) > 0) {
-    std::cout << "Adding file: " << path << " and overwriting " << relpath
-              << std::endl;
-  } else {
-    std::cout << "Adding file: " << path << " as " << relpath << std::endl;
-  }
+    std::string relpath = make_path_relative(path, root);
+    if (m_Files.count(relpath) > 0)
+    {
+        std::cout << "Adding file: " << path << " (" << size << " bytes) and overwriting " << relpath << " to " << this
+                  << std::endl;
+    }
+    else
+    {
+        std::cout << "Adding file: " << path << " (" << size << " bytes) as " << relpath << " to " << this << std::endl;
+    }
 
-  std::string ext = std::filesystem::path(relpath).extension();
-  if (ext == ".html" || ext == ".tmpl")
-  {
-    std::string tmpl(fd.data.data(), fd.data.data() + fd.data.size());
-    m_Templates[relpath] = inja::Template(tmpl);
-    std::cout << "File: " << relpath << " may contain a renderable template." << std::endl;
-  } else {
     m_Files[relpath] = fd;
-  }
 
-  return true;
+    return true;
 }
 
-bool Filesystem::Scan(std::string root) {
-  for (const auto &entry : std::filesystem::directory_iterator(root)) {
-    AddSingleFile(entry.path(), root);
-  }
-  return true;
-}
-
-void Filesystem::AddInjaCallback(std::string functionName, std::size_t numberOfArgs, inja::CallbackFunction function)
+bool Filesystem::Scan(std::string root)
 {
-  m_Inja.add_callback(functionName, numberOfArgs, function);
+    bool retval = true;
+
+    for (const auto & entry : std::filesystem::directory_iterator(root))
+    {
+        if (AddSingleFile(entry.path(), root) == false)
+        {
+            retval = true;
+        }
+    }
+
+    return retval;
 }
 
-void Filesystem::AddVoidInjaCallback(std::string functionName, std::size_t numberOfArgs, inja::VoidCallbackFunction function)
+bool Filesystem::Scan(std::string root, std::vector<std::string> extensions, bool exclude_extensions)
 {
-  m_Inja.add_void_callback(functionName, numberOfArgs, function);
+    bool retval = true;
+
+    for (const auto & entry : std::filesystem::directory_iterator(root))
+    {
+        std::string ext = std::filesystem::path(entry).extension();
+        bool found_extension = false;
+
+        for (const auto & extension : extensions)
+        {
+            if (ext == "." + extension)
+            {
+                found_extension = true;
+                break;
+            }
+        }
+
+        if (found_extension == true && exclude_extensions == false)
+        {
+            if (AddSingleFile(entry.path(), root) == false)
+            {
+                retval = false;
+            }
+        }
+        if (found_extension == false && exclude_extensions == true)
+        {
+            if (AddSingleFile(entry.path(), root) == false)
+            {
+                retval = false;
+            }
+        }
+    }
+
+    return retval;
+}
+
+const std::unordered_map<std::string, struct file_data> & Filesystem::GetFiles() const
+{
+    return m_Files;
 }

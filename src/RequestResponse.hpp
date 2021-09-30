@@ -5,24 +5,25 @@
 
 #include <string>
 
-class RequestResponse {
+class RequestResponse
+{
 public:
-  RequestResponse(struct evhttp_request * const req);
-  ~RequestResponse();
+    RequestResponse(struct evhttp_request * const req);
+    ~RequestResponse();
 
-  void UseInputHeader();
-  void UseOutputHeader();
+    void UseInputHeader();
+    void UseOutputHeader();
 
-  bool AddOutputHeader(std::string & key, std::string & value);
-  bool AddOutputHeader2(std::string key, std::string value);
+    bool AddOutputHeaderByRef(std::string & key, std::string & value);
+    bool AddOutputHeader(std::string key, std::string value);
 
-  bool GetInputHeader(std::string & key, std::string & value);
-  bool GetInputHeader2(std::string key, std::string value);
+    bool GetInputHeaderByRef(std::string & key, std::string & value);
+    bool GetInputHeader(std::string key, std::string value);
 
 private:
-  struct evhttp_request * const m_Request;
-  struct evkeyvalq * m_InputHeader;
-  struct evkeyvalq * m_OutputHeader;
+    struct evhttp_request * const m_Request;
+    struct evkeyvalq * m_InputHeader;
+    struct evkeyvalq * m_OutputHeader;
 };
 
 #endif

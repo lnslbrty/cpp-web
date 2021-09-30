@@ -1,37 +1,41 @@
 #include "Blog.hpp"
 
-Blog::Blog(std::string baseUri, std::string templatePath) : TemplatedContent(templatePath), m_BaseUri(baseUri), m_Redirections()
+Blog::Blog(std::string uriBasePath, std::string mainTemplatePath)
+    : Content(), m_UriBasePath(uriBasePath), m_MainTemplatePath(mainTemplatePath)
 {
-    m_Redirections.push_back(baseUri + "-data");
+    m_Redirections.push_back(uriBasePath + "/");
+    m_Redirections.push_back(uriBasePath + "/index.html");
 }
 
-bool Blog::Init(void)
+bool Blog::Init()
 {
-  return true;
+    return true;
 }
 
-void Blog::Shutdown(void)
+void Blog::Shutdown()
 {
 }
 
-bool Blog::Render(RequestResponse & rr, std::string & out)
+bool Blog::Render(RequestResponse & rr, RenderData & rd)
 {
-  (void)rr;
+    rd["blah"] = "Yoh!";
+    rr.UseOutputHeader();
+    rr.AddOutputHeader("bla", "blubb");
 
-  rr.UseOutputHeader();
-  rr.AddOutputHeader2("bla", "blubb");
-  out = "blog-bla";
-
-  return true;
+    return true;
 }
 
-std::string const & Blog::GetBaseUri(void) const
+std::string const & Blog::GetUriBasePath() const
 {
-  return m_BaseUri;
+    return m_UriBasePath;
 }
 
-Redirections const &
-Blog::GetRedirections(void) const
+std::string const & Blog::GetMainTemplate() const
 {
-  return m_Redirections;
+    return m_MainTemplatePath;
+}
+
+Redirections const & Blog::GetRedirections() const
+{
+    return m_Redirections;
 }

@@ -1,31 +1,8 @@
 <html><body>
-    Hello {{ name }}! I come from {{ city }}.<br>
-
-    Hello {{ names.1 }}!<br>
-
-    Hello {{ brother.name }}!<br>
-
-    Hello {{ brother.daughter0.name }}!<br>
-
-    {{ \"{{ no_value }}\" }}<br>
-
-    Hello{# This is a comment #}!<br>
-
-    {# --- #Todo --- #}<br>
-
-    {% for name in names %}a{% endfor %}<br>
-
-    Hello {% for name in names %}{{ name }} {% endfor %}!<br>
-
-    Hello {% for name in names %}{{ loop.index }}: {{ name }}, {% endfor %}!<br>
-
-    {% for type, name in relatives %}{{ type }}: {{ name }}, {% endfor %}<br>
-
-    {% for v in vars %}{% if v > 0 %}+{% endif %}{% endfor %}<br>
-
-    {% for name in names %}{{ loop.index }}: {{ name }}{% if not loop.is_last %}, {% endif %}{% endfor %}!<br>
-
-    {% for name in names %}{{ loop.index }}: {{ name }}{% if loop.is_last == false %}, {% endif %}{% endfor %}!<br>
-
-    {% for name in names %}a{% endfor %}<br>
+<p>
+<b>blabla</b>
+Test fn....: <b>{{ test_fn }}</b><br>
+Test RetFN.: <b>{{ test_return_true }}</b><br>
+Blog Render: <b>{{ blah }}</b><br>
+</p>
 </body></html>

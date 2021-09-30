@@ -12,38 +12,38 @@
 #include <string>
 #include <vector>
 
-typedef void *EvUserData;
-typedef void ev_c_callback(struct evhttp_request *, EvUserData);
-typedef std::function<void(struct evhttp_request *, EvUserData)> EvFunction;
+using EvUserData = void *;
+using EvFunction = std::function<void(struct evhttp_request *, EvUserData)>;
 
-struct ev_callback {
-  EvFunction cb;
-  EvUserData ud;
+struct ev_callback
+{
+    EvFunction cb;
+    EvUserData ud;
 };
 
-typedef std::tuple<std::string, struct ev_callback> EvUrlCallback;
+using EvUrlCallback = std::tuple<std::string, struct ev_callback>;
 
-class EventManager {
+class EventManager
+{
 public:
-  EventManager();
-  ~EventManager();
+    EventManager(std::shared_ptr<ContentManager> & cmgr);
+    ~EventManager();
 
-  bool Init(std::string = "127.0.0.1", uint16_t port = 9000);
-  void SetDefaultCallback(EvFunction fn, EvUserData dat);
-  void AddCallback(std::string url, EvFunction fn, EvUserData dat);
-  void AddContentManager(ContentManager const & cmgr);
+    bool Init(std::string = "127.0.0.1", uint16_t port = 9000);
+    void SetDefaultCallback(EvFunction fn, EvUserData dat);
+    void AddCallback(std::string url, EvFunction fn, EvUserData dat);
 
 private:
-  struct ev_callback m_DefaultCallback;
-  std::vector<EvUrlCallback> m_UrlCallbacks;
-  ContentModules m_ContentModules;
+    std::shared_ptr<ContentManager> m_ContentManager;
+    struct ev_callback m_DefaultCallback;
+    std::vector<EvUrlCallback> m_UrlCallbacks;
 
-  struct event_config *m_EvConfig = nullptr;
-  struct event_base *m_EvBase = nullptr;
-  struct evhttp *m_EvHttp = nullptr;
-  struct evhttp_bound_socket *m_EvSocket = nullptr;
-  struct evconnlistener *m_EvListener = nullptr;
-  struct event *m_EvTermEvent = nullptr;
+    struct event_config * m_EvConfig = nullptr;
+    struct event_base * m_EvBase = nullptr;
+    struct evhttp * m_EvHttp = nullptr;
+    struct evhttp_bound_socket * m_EvSocket = nullptr;
+    struct evconnlistener * m_EvListener = nullptr;
+    struct event * m_EvTermEvent = nullptr;
 };
 
 #endif
