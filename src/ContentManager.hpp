@@ -28,11 +28,12 @@ public:
     void ShutdownAll(void);
     bool Render(char const * basePath, RequestResponse & rr, std::string & out);
     ContentModules const & GetAllModules() const;
+    ContentModules const & GetAllModulesRoutes() const;
 
 private:
-    std::shared_ptr<Filesystem> m_StaticFilesystem;
     std::shared_ptr<TemplateManager> m_TemplateManager;
     ContentModules m_ContentModules;
+    ContentModules m_ContentModulesRoutes;
 };
 
 #endif

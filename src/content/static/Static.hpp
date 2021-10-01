@@ -1,14 +1,14 @@
-#ifndef BLOG_H
-#define BLOG_H 1
+#ifndef STATIC_H
+#define STATIC_H 1
 
 #include "../../Content.hpp"
 #include "../../Filesystem.hpp"
 #include "../markdown/Markdown.hpp"
 
-class Blog : public Content
+class Static : public Content
 {
 public:
-    explicit Blog(std::string uriBasePath, std::string mainTemplatePath, std::string blogPath);
+    explicit Static(std::string uriBasePath, std::string staticFilesPath);
 
     bool Init();
     void Shutdown();
@@ -21,10 +21,9 @@ public:
 private:
     std::string m_UriBasePath;
     std::string m_MainTemplatePath;
-    std::string m_BlogPath;
+    std::string m_StaticFilesPath;
     Redirections m_Redirections;
-    Filesystem m_BlogEntriesMetadata;
-    Markdown m_BlogEntries;
+    Filesystem m_StaticFiles;
 };
 
 #endif

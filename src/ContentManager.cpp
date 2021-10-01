@@ -1,10 +1,5 @@
 #include "ContentManager.hpp"
 
-void ContentManager::SetStaticFilesystem(std::shared_ptr<Filesystem> & static_fs)
-{
-    m_StaticFilesystem = static_fs;
-}
-
 void ContentManager::SetTemplateSystem(std::shared_ptr<TemplateManager> & tmgr)
 {
     m_TemplateManager = tmgr;
@@ -18,7 +13,7 @@ bool ContentManager::RegisterModule(std::shared_ptr<Content> ctnt)
     m_ContentModules[basePath] = ctnt;
     for (auto & redirect : rs)
     {
-        m_ContentModules[redirect] = ctnt;
+        m_ContentModulesRoutes[redirect] = ctnt;
     }
 
     return false;
@@ -57,26 +52,40 @@ void ContentManager::ShutdownAll(void)
         }
     }
 
+    m_ContentModulesRoutes.clear();
     m_ContentModules.clear();
 }
 
 bool ContentManager::Render(char const * basePath, RequestResponse & rr, std::string & out)
 {
+    std::shared_ptr<Content> cntm;
+
     if (m_ContentModules.find(basePath) == m_ContentModules.end())
     {
-        return false;
+        if (m_ContentModulesRoutes.find(basePath) == m_ContentModulesRoutes.end())
+        {
+            return false;
+        }
+        else
+        {
+            cntm = m_ContentModulesRoutes[basePath];
+        }
+    }
+    else
+    {
+        cntm = m_ContentModules[basePath];
     }
 
     RenderData rd;
-    auto & cntm = m_ContentModules[basePath];
     auto & main = cntm->GetMainTemplate();
 
-    if (m_ContentModules[basePath]->Render(rr, rd) == false)
+    out.clear();
+    if (cntm->Render(rr, rd, out) == false)
     {
         return false;
     }
 
-    if (m_TemplateManager->RenderTemplate(main, rd, out) == false)
+    if (main.empty() == false && out.empty() == true && m_TemplateManager->RenderTemplate(main, rd, out) == false)
     {
         return false;
     }
@@ -87,4 +96,9 @@ bool ContentManager::Render(char const * basePath, RequestResponse & rr, std::st
 ContentModules const & ContentManager::GetAllModules() const
 {
     return m_ContentModules;
+}
+
+ContentModules const & ContentManager::GetAllModulesRoutes() const
+{
+    return m_ContentModulesRoutes;
 }

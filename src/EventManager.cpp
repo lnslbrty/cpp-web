@@ -133,7 +133,9 @@ bool EventManager::Init(std::string host, uint16_t port)
         return false;
     }
 
+#if 0
     event_enable_debug_logging(EVENT_DBG_ALL);
+#endif
 
     cfg = event_config_new();
     event_config_set_flag(cfg, EVENT_BASE_FLAG_STARTUP_IOCP);
@@ -164,6 +166,13 @@ bool EventManager::Init(std::string host, uint16_t port)
         }
     }
     for (auto & cm : m_ContentManager->GetAllModules())
+    {
+        if (evhttp_set_cb(m_EvHttp, cm.first.c_str(), EvContentManagerInterceptor, &m_ContentManager) != 0)
+        {
+            return false;
+        }
+    }
+    for (auto & cm : m_ContentManager->GetAllModulesRoutes())
     {
         if (evhttp_set_cb(m_EvHttp, cm.first.c_str(), EvContentManagerInterceptor, &m_ContentManager) != 0)
         {

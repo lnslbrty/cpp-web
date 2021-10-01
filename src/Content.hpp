@@ -17,7 +17,7 @@ public:
     virtual bool Init() = 0;
     virtual void Shutdown() = 0;
 
-    virtual bool Render(RequestResponse & rr, RenderData & rd) = 0;
+    virtual bool Render(RequestResponse & rr, RenderData & rd, std::string & out) = 0;
 
     virtual std::string const & GetUriBasePath() const = 0;
     virtual std::string const & GetMainTemplate() const = 0;

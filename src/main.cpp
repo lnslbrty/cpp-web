@@ -88,33 +88,37 @@ int main(int argc, char ** argv)
         port = atoi(argv[2]);
     }
 
-    std::shared_ptr<Filesystem> static_fs = std::make_shared<Filesystem>();
-    if (argc > 3)
-    {
-        if (static_fs->Scan(argv[3]) != true)
-        {
-            return 1;
-        }
-    }
-    static_fs->Scan("./wwwroot", {"html", "tmpl"}, true);
-
-    Filesystem dynamic_fs;
-    if (argc > 4)
-    {
-        if (dynamic_fs.Scan(argv[4]) != true)
-        {
-            return 1;
-        }
-    }
-    dynamic_fs.Scan("./wwwroot", {"html", "tmpl"}, false);
-
     std::shared_ptr<TemplateManager> tmgr = std::make_shared<TemplateManager>();
-    tmgr->ParseTemplates(dynamic_fs);
-
     std::shared_ptr<ContentManager> ctmgr = std::make_shared<ContentManager>();
-    ctmgr->SetStaticFilesystem(static_fs);
     ctmgr->SetTemplateSystem(tmgr);
-    ctmgr->RegisterModule(std::make_shared<Blog>("/blog", "index.html"));
+
+    {
+        Filesystem static_fs;
+        if (argc > 3)
+        {
+            if (static_fs.Scan(argv[3]) != true)
+            {
+                return 1;
+            }
+        }
+        static_fs.Scan("./wwwroot", {"html", "tmpl"}, true);
+    }
+
+    {
+        Filesystem dynamic_fs;
+        if (argc > 4)
+        {
+            if (dynamic_fs.Scan(argv[4]) != true)
+            {
+                return 1;
+            }
+        }
+        dynamic_fs.Scan("./wwwroot", {"html", "tmpl"}, false);
+
+        tmgr->ParseTemplates(dynamic_fs);
+    }
+
+    ctmgr->RegisterModule(std::make_shared<Blog>("/blog", "index.html", "./blog"));
 
     if (ctmgr->InitAll() == false)
     {

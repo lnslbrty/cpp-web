@@ -1,7 +1,11 @@
 #include "Blog.hpp"
 
-Blog::Blog(std::string uriBasePath, std::string mainTemplatePath)
-    : Content(), m_UriBasePath(uriBasePath), m_MainTemplatePath(mainTemplatePath)
+Blog::Blog(std::string uriBasePath, std::string mainTemplatePath, std::string blogPath)
+    : Content(),
+      m_UriBasePath(uriBasePath),
+      m_MainTemplatePath(mainTemplatePath),
+      m_BlogPath(blogPath),
+      m_BlogEntries("", blogPath)
 {
     m_Redirections.push_back(uriBasePath + "/");
     m_Redirections.push_back(uriBasePath + "/index.html");
@@ -9,18 +13,34 @@ Blog::Blog(std::string uriBasePath, std::string mainTemplatePath)
 
 bool Blog::Init()
 {
+    std::cout << "Blog entries path: " << m_BlogPath << std::endl;
+
+    std::vector<std::string> extensions = {"json"};
+
+    if (m_BlogEntriesMetadata.Scan(m_BlogPath, extensions, false) == false)
+    {
+        return false;
+    }
+
+    m_BlogEntries.Init();
+
     return true;
 }
 
 void Blog::Shutdown()
 {
+    std::cout << "Blog module shutdown" << std::endl;
+
+    m_BlogEntries.Shutdown();
 }
 
-bool Blog::Render(RequestResponse & rr, RenderData & rd)
+bool Blog::Render(RequestResponse & rr, RenderData & rd, std::string & out)
 {
-    rd["blah"] = "Yoh!";
-    rr.UseOutputHeader();
-    rr.AddOutputHeader("bla", "blubb");
+    (void)rr;
+    (void)rd;
+    (void)out;
+
+    rd["blah"] = "Yooooh!";
 
     return true;
 }
