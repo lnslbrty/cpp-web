@@ -10,8 +10,18 @@
 
 extern "C"
 {
+    struct chunk_req_state
+    {
+        struct event_base * base;
+        struct evhttp_request * req;
+        struct event * timer;
+
+        off_t out_offset;
+    };
+
     static void GenerateInternalErrorPage(struct evhttp_request * const req, std::string text)
     {
+        evhttp_clear_headers(evhttp_request_get_output_headers(req));
         evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type", "text/html");
 
         struct evbuffer * const output = evbuffer_new();
@@ -55,7 +65,7 @@ extern "C"
             }
 
             std::shared_ptr<ContentManager> const cmgr = *(std::shared_ptr<ContentManager> const *)ev_c_callback;
-            RequestResponse rr(req);
+            RequestResponse rr(path, req);
             std::string out;
 
             if (cmgr->Render(path, rr, out) == false)
@@ -66,8 +76,6 @@ extern "C"
             }
             else
             {
-                evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type", "text/html");
-
                 struct evbuffer * const output = evbuffer_new();
                 if (output != nullptr)
                 {
@@ -212,4 +220,8 @@ void EventManager::SetDefaultCallback(EvFunction fn, EvUserData dat)
 void EventManager::AddCallback(std::string url, EvFunction fn, EvUserData dat)
 {
     m_UrlCallbacks.push_back(EvUrlCallback(url, {fn, dat}));
+}
+
+void EventManager::AddChunkedCallback(std::string url, EvFunction fn, EvUserData dat, struct timeval chunk_timer)
+{
 }

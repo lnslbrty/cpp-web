@@ -10,8 +10,18 @@ static std::string make_path_relative(std::string & path, std::string & root)
     return std::filesystem::relative(path, root);
 }
 
+static bool is_directory(std::string & path)
+{
+    return std::filesystem::is_directory(path);
+}
+
 bool Filesystem::AddSingleFile(std::string path, std::string root)
 {
+    if (is_directory(path) == true)
+    {
+        return true;
+    }
+
     std::ifstream ifs(path, std::ios::binary | std::ios::ate);
 
     if (!ifs)
@@ -29,9 +39,9 @@ bool Filesystem::AddSingleFile(std::string path, std::string root)
         return false;
     }
 
-    auto size = std::size_t(end - ifs.tellg());
+    auto size = end - ifs.tellg();
 
-    if (size == 0)
+    if (size <= 0)
     {
         return false;
     }
@@ -62,6 +72,7 @@ bool Filesystem::AddSingleFile(std::string path, std::string root)
         std::cout << "Adding file: " << path << " (" << size << " bytes) as " << relpath << " to " << this << std::endl;
     }
 
+    fd.mime = magic_file(m_Magic, path.c_str());
     m_Files[relpath] = fd;
 
     return true;
@@ -69,24 +80,14 @@ bool Filesystem::AddSingleFile(std::string path, std::string root)
 
 bool Filesystem::Scan(std::string root)
 {
-    bool retval = true;
-
-    for (const auto & entry : std::filesystem::directory_iterator(root))
-    {
-        if (AddSingleFile(entry.path(), root) == false)
-        {
-            retval = true;
-        }
-    }
-
-    return retval;
+    return Scan(root, {}, true);
 }
 
 bool Filesystem::Scan(std::string root, std::vector<std::string> extensions, bool exclude_extensions)
 {
     bool retval = true;
 
-    for (const auto & entry : std::filesystem::directory_iterator(root))
+    for (const auto & entry : std::filesystem::recursive_directory_iterator(root))
     {
         std::string ext = std::filesystem::path(entry).extension();
         bool found_extension = false;
@@ -119,7 +120,20 @@ bool Filesystem::Scan(std::string root, std::vector<std::string> extensions, boo
     return retval;
 }
 
-const std::unordered_map<std::string, struct file_data> & Filesystem::GetFiles() const
+FilesDict & Filesystem::GetFiles()
 {
     return m_Files;
+}
+
+void Filesystem::MagicInit()
+{
+    m_Magic = magic_open(MAGIC_MIME_TYPE);
+
+    magic_load(m_Magic, NULL);
+    magic_compile(m_Magic, NULL);
+}
+
+void Filesystem::MagicClose()
+{
+    magic_close(m_Magic);
 }

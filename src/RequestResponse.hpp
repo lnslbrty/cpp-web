@@ -8,19 +8,28 @@
 class RequestResponse
 {
 public:
-    RequestResponse(struct evhttp_request * const req);
+    RequestResponse(char const * const uri_path, struct evhttp_request * const req);
     ~RequestResponse();
+
+    char const * GetUriPath() const
+    {
+        return m_UriPath;
+    }
 
     void UseInputHeader();
     void UseOutputHeader();
 
-    bool AddOutputHeaderByRef(std::string & key, std::string & value);
-    bool AddOutputHeader(std::string key, std::string value);
+    bool AddOutputHeaderByRef(std::string const & key, std::string const & value);
+    bool AddOutputHeader(std::string const key, std::string const value);
 
-    bool GetInputHeaderByRef(std::string & key, std::string & value);
-    bool GetInputHeader(std::string key, std::string value);
+    bool RemoveOutputHeaderByRef(std::string const & key);
+    bool RemoveOutputHeader(std::string const key);
+
+    bool GetInputHeaderByRef(std::string const & key, std::string & value);
+    bool GetInputHeader(std::string const key, std::string value);
 
 private:
+    char const * const m_UriPath;
     struct evhttp_request * const m_Request;
     struct evkeyvalq * m_InputHeader;
     struct evkeyvalq * m_OutputHeader;

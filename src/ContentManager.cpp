@@ -1,6 +1,6 @@
 #include "ContentManager.hpp"
 
-void ContentManager::SetTemplateSystem(std::shared_ptr<TemplateManager> & tmgr)
+void ContentManager::SetTemplateSystem(std::shared_ptr<TemplateManager> const & tmgr)
 {
     m_TemplateManager = tmgr;
 }

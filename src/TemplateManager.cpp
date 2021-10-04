@@ -14,7 +14,7 @@ TemplateManager::TemplateManager()
     });
 }
 
-void TemplateManager::ParseTemplates(Filesystem const & fs)
+void TemplateManager::ParseTemplates(Filesystem & fs)
 {
     for (auto & tpl : fs.GetFiles())
     {

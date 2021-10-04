@@ -21,8 +21,7 @@ public:
         ShutdownAll();
     }
 
-    void SetStaticFilesystem(std::shared_ptr<Filesystem> & static_fs);
-    void SetTemplateSystem(std::shared_ptr<TemplateManager> & tmgr);
+    void SetTemplateSystem(std::shared_ptr<TemplateManager> const & tmgr);
     bool RegisterModule(std::shared_ptr<Content> ctnt);
     bool InitAll(void);
     void ShutdownAll(void);

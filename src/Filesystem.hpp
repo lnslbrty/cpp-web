@@ -1,13 +1,18 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H 1
 
+#include <magic.h>
+
 #include <inja/inja.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+using FilesDict = std::unordered_map<std::string, struct file_data>;
+
 struct file_data
 {
+    std::string mime;
     std::vector<unsigned char> data;
 };
 
@@ -16,18 +21,24 @@ class Filesystem
 public:
     Filesystem()
     {
+        MagicInit();
     }
     ~Filesystem()
     {
+        MagicClose();
     }
 
-    bool AddSingleFile(std::string path, std::string root);
     bool Scan(std::string root = "./wwwroot");
     bool Scan(std::string root, std::vector<std::string> extensions, bool exclude_extensions = false);
-    const std::unordered_map<std::string, struct file_data> & GetFiles() const;
+    FilesDict & GetFiles();
 
 private:
-    std::unordered_map<std::string, struct file_data> m_Files;
+    bool AddSingleFile(std::string path, std::string root);
+    void MagicInit();
+    void MagicClose();
+
+    FilesDict m_Files;
+    magic_t m_Magic;
 };
 
 #endif

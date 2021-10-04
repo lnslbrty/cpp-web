@@ -4,6 +4,7 @@
 #include "TemplateManager.hpp"
 
 #include "content/blog/Blog.hpp"
+#include "content/static/Static.hpp"
 
 #include <event2/buffer.h>
 
@@ -93,15 +94,17 @@ int main(int argc, char ** argv)
     ctmgr->SetTemplateSystem(tmgr);
 
     {
-        Filesystem static_fs;
+        std::shared_ptr<Filesystem> static_fs = std::make_shared<Filesystem>();
         if (argc > 3)
         {
-            if (static_fs.Scan(argv[3]) != true)
+            if (static_fs->Scan(argv[3]) != true)
             {
                 return 1;
             }
         }
-        static_fs.Scan("./wwwroot", {"html", "tmpl"}, true);
+        static_fs->Scan("./wwwroot", {"html", "tmpl"}, true);
+
+        ctmgr->RegisterModule(std::make_shared<Static>("/static", static_fs));
     }
 
     {

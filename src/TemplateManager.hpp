@@ -14,7 +14,7 @@ public:
     {
     }
 
-    void ParseTemplates(Filesystem const & fs);
+    void ParseTemplates(Filesystem & fs);
     void AddInjaCallback(std::string functionName, std::size_t numberOfArgs, inja::CallbackFunction function);
     void AddVoidInjaCallback(std::string functionName, std::size_t numberOfArgs, inja::VoidCallbackFunction function);
     bool TemplateExists(std::string const & templatePath);
