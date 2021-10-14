@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.1.9)
 project(cpp-web)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++17")
-set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fpic -fomit-frame-pointer -flto -fno-rtti -ffunction-sections -fdata-sections -fsanitize=address -fsanitize=leak")
-set(CMAKE_CXX_FLAGS_RELEASE "-Os")
-set(CMAKE_EXE_LINKER_FLAGS "-flto")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fpic -fno-omit-frame-pointer -fno-rtti -ffunction-sections -fdata-sections -fsanitize=address -fsanitize=leak")
+set(CMAKE_CXX_FLAGS_RELEASE "-Os -fpic -fomit-frame-pointer -ffunction-sections -fdata-sections -flto")
+set(CMAKE_EXE_LINKER_FLAGS "-Wl,-gc-sections")
 
 set(INJA_SRCDIR "${PROJECT_SOURCE_DIR}/deps/inja" CACHE STRING "Path to the inja source directory.")
 if(NOT EXISTS "${INJA_SRCDIR}/single_include/inja/inja.hpp")

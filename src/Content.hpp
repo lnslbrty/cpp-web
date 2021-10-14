@@ -9,7 +9,7 @@
 #include <vector>
 
 using Redirections = std::vector<std::string>;
-using RenderData = std::unordered_map<std::string, std::string>;
+using RenderData = inja::json;
 
 class Content
 {

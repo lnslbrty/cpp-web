@@ -6,7 +6,6 @@ Static::Static(std::string uriBasePath, std::shared_ptr<Filesystem> const & fs)
     for (auto const & file : fs->GetFiles())
     {
         m_Redirections.push_back(uriBasePath + "/" + file.first);
-        m_UriToFsMapping[uriBasePath + "/" + file.first] = file.first;
     }
 }
 
@@ -26,16 +25,21 @@ bool Static::Render(RequestResponse & rr, RenderData & rd, std::string & out)
 {
     (void)rd;
 
-    rr.UseOutputHeader();
-    auto & files = m_StaticFiles->GetFiles();
-    auto const & path = std::string(rr.GetUriPath());
-
-    if (rr.AddOutputHeader("Content-Type", files[m_UriToFsMapping[path]].mime) == false)
+    if (rr.GetUriPath() == m_UriBasePath)
     {
         return false;
     }
 
-    out = std::string(files[m_UriToFsMapping[path]].data.begin(), files[m_UriToFsMapping[path]].data.end());
+    rr.UseOutputHeader();
+    auto & files = m_StaticFiles->GetFiles();
+    auto const & path = std::string(rr.GetUriPath()).substr(m_UriBasePath.length() + 1, std::string::npos);
+
+    if (rr.AddOutputHeader("Content-Type", files[path].mime) == false)
+    {
+        return false;
+    }
+
+    out = std::string(files[path].data.begin(), files[path].data.end());
 
     return true;
 }

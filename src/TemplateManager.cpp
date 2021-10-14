@@ -50,8 +50,15 @@ bool TemplateManager::RenderTemplate(std::string const & templatePath, RenderDat
         return false;
     }
 
-    inja::json ij(rd);
-    out = m_Inja.render(m_Templates[templatePath].content, ij);
+    try
+    {
+        out = m_Inja.render(m_Templates[templatePath].content, rd);
+    }
+    catch (inja::RenderError & re)
+    {
+        std::cerr << "Render Error: " << re.what() << std::endl;
+        return false;
+    }
 
     return true;
 }

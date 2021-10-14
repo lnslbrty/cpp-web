@@ -3,6 +3,9 @@
 <b>blabla</b>
 Test fn....: <b>{{ test_fn }}</b><br>
 Test RetFN.: <b>{{ test_return_true }}</b><br>
-Blog Render: <b>{{ blah }}</b><br>
+## for entry in blog_listing
+    {{ loop.index1 }}: {{ entry.content_filename }} -> {{ entry.published }}<br>
+        <b>{{ entry }}</b><br>
+## endfor
 </p>
 </body></html>

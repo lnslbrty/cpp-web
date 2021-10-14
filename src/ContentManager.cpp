@@ -8,15 +8,14 @@ void ContentManager::SetTemplateSystem(std::shared_ptr<TemplateManager> const & 
 bool ContentManager::RegisterModule(std::shared_ptr<Content> ctnt)
 {
     std::string const & basePath = ctnt->GetUriBasePath();
-    Redirections const & rs = ctnt->GetRedirections();
 
-    m_ContentModules[basePath] = ctnt;
-    for (auto & redirect : rs)
+    if (basePath.empty() == true)
     {
-        m_ContentModulesRoutes[redirect] = ctnt;
+        return false;
     }
+    m_ContentModules[basePath] = ctnt;
 
-    return false;
+    return true;
 }
 
 bool ContentManager::InitAll(void)
@@ -28,6 +27,12 @@ bool ContentManager::InitAll(void)
         if (content.second->Init() == false)
         {
             ret = false;
+        }
+
+        Redirections const & rs = content.second->GetRedirections();
+        for (auto & redirect : rs)
+        {
+            m_ContentModulesRoutes[redirect] = content.second;
         }
     }
 
@@ -76,10 +81,10 @@ bool ContentManager::Render(char const * basePath, RequestResponse & rr, std::st
         cntm = m_ContentModules[basePath];
     }
 
-    RenderData rd;
     auto & main = cntm->GetMainTemplate();
 
     out.clear();
+    RenderData rd;
     if (cntm->Render(rr, rd, out) == false)
     {
         return false;

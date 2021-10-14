@@ -22,7 +22,6 @@ private:
     std::string m_MainTemplatePath;
     Redirections m_Redirections;
     std::shared_ptr<Filesystem> const m_StaticFiles;
-    std::unordered_map<std::string, std::string> m_UriToFsMapping;
 };
 
 #endif
