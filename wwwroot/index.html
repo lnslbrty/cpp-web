@@ -3,9 +3,12 @@
 <b>blabla</b>
 Test fn....: <b>{{ test_fn }}</b><br>
 Test RetFN.: <b>{{ test_return_true }}</b><br>
+{% if exists("blog_listing") and length(blog_listing) > 0 %}
 ## for entry in blog_listing
     {{ loop.index1 }}: {{ entry.content_filename }} -> {{ entry.published }}<br>
         <b>{{ entry }}</b><br>
+        {{ indent(entry.content, 8, false, false) }}<br>
 ## endfor
+{% endif %}
 </p>
 </body></html>

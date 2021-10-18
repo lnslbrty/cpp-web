@@ -41,6 +41,9 @@ bool Blog::Init()
 
         m_Redirections.push_back(std::filesystem::path(jfile.first).stem());
     }
+    std::sort(m_BlogEntriesSortedByDate.begin(), m_BlogEntriesSortedByDate.end(), [](auto const & a, auto const & b) {
+        return a->publishDate > b->publishDate;
+    });
 
     m_BlogContents.Init();
 
@@ -169,16 +172,29 @@ bool Blog::ValidateEntries() const
     return retval;
 }
 
-void Blog::GenerateBlogListing(RenderData & rd) const
+void Blog::GenerateBlogListing(RenderData & rd)
 {
     for (auto const & e : m_BlogEntriesSortedByDate)
     {
+        if (e->published == false)
+        {
+            continue;
+        }
+
         RenderData re;
         re["metadata_filename"] = e->metadata_filename;
         re["content_filename"] = e->content_filename;
         re["createDate"] = e->createDate;
         re["publishDate"] = e->publishDate;
         re["published"] = e->published;
+        if (m_BlogContents.HasMarkdownFile(e->content_filename) == true)
+        {
+            re["content"] = m_BlogContents.GetMarkdownHTML(e->content_filename)->c_str();
+        }
+        else
+        {
+            re["content"] = "";
+        }
 
         rd += re;
     }

@@ -40,7 +40,7 @@ public:
 
     static bool ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry & blogEntry);
     bool ValidateEntries() const;
-    void GenerateBlogListing(RenderData & rd) const;
+    void GenerateBlogListing(RenderData & rd);
 
 private:
     std::string m_UriBasePath;
