@@ -1,11 +1,20 @@
 #include "Markdown.hpp"
 
+#include <md4c-html.h>
+
 Markdown::Markdown(std::string uriBasePath, std::string markdownFilesPath, std::string mainTemplatePath)
     : Content(),
       m_UriBasePath(uriBasePath),
       m_MainTemplatePath(mainTemplatePath),
       m_MarkdownFilesPath(markdownFilesPath)
 {
+}
+
+extern "C" void markdown_to_html_conversion(const MD_CHAR * const text, MD_SIZE size, void * const userdata)
+{
+    std::string * html = (std::string *)userdata;
+
+    html->append(text, size);
 }
 
 bool Markdown::Init()
@@ -22,8 +31,27 @@ bool Markdown::Init()
 
     for (auto const & mfile : fs.GetFiles())
     {
-        m_Markdowns[mfile.first] =
-            std::make_shared<std::string>(std::string(mfile.second.data.begin(), mfile.second.data.end()));
+        Data const & data = mfile.second.data;
+        std::string html;
+
+        html.reserve(data.size() / 8 + 64);
+        int ret = md_html((MD_CHAR const *)data.data(),
+                          data.size(),
+                          markdown_to_html_conversion,
+                          &html,
+                          MD_DIALECT_GITHUB,
+                          MD_FLAG_COLLAPSEWHITESPACE | MD_FLAG_PERMISSIVEURLAUTOLINKS | MD_FLAG_PERMISSIVEWWWAUTOLINKS |
+                              MD_FLAG_PERMISSIVEEMAILAUTOLINKS | MD_FLAG_PERMISSIVEAUTOLINKS | MD_FLAG_TABLES |
+                              MD_FLAG_STRIKETHROUGH | MD_FLAG_LATEXMATHSPANS | MD_FLAG_WIKILINKS | MD_FLAG_TASKLISTS |
+                              MD_FLAG_UNDERLINE);
+
+        if (ret != 0)
+        {
+            std::cerr << "Markdown HTML rendering failed." << std::endl;
+            return false;
+        }
+
+        m_Markdowns[mfile.first] = std::make_shared<std::string>(html);
     }
 
     return true;

@@ -4,36 +4,45 @@
 
 TemplateManager::TemplateManager()
 {
-    AddInjaCallback("test_fn", 0, [](inja::Arguments & args) {
-        (void)args;
-        return "Just a test fn.";
-    });
-    AddInjaCallback("test_return_true", 0, [](inja::Arguments & args) {
-        (void)args;
-        return true;
-    });
+    AddInjaCallback("test_fn",
+                    0,
+                    [](inja::Arguments & args)
+                    {
+                        (void)args;
+                        return "Just a test fn.";
+                    });
+    AddInjaCallback("test_return_true",
+                    0,
+                    [](inja::Arguments & args)
+                    {
+                        (void)args;
+                        return true;
+                    });
     /*
      * indent(input: str, width: int, first: bool, blank: bool);
      */
-    AddInjaCallback("indent", 4, [](inja::Arguments & args) {
-        std::stringstream stream(args.at(0)->get<std::string>());
-        std::string line, out;
-        bool is_first_line = true;
-        while (std::getline(stream, line))
-        {
-            if (is_first_line == false || args.at(2)->get<bool>() == true)
-            {
-                if (line != "" || args.at(3)->get<bool>() == false)
-                {
-                    line.insert(0, args.at(1)->get<std::size_t>(), ' ');
-                }
-            }
-            line += '\n';
-            out += line;
-            is_first_line = false;
-        }
-        return out;
-    });
+    AddInjaCallback("indent",
+                    4,
+                    [](inja::Arguments & args)
+                    {
+                        std::stringstream stream(args.at(0)->get<std::string>());
+                        std::string line, out;
+                        bool is_first_line = true;
+                        while (std::getline(stream, line))
+                        {
+                            if (is_first_line == false || args.at(2)->get<bool>() == true)
+                            {
+                                if (line != "" || args.at(3)->get<bool>() == false)
+                                {
+                                    line.insert(0, args.at(1)->get<std::size_t>(), ' ');
+                                }
+                            }
+                            line += '\n';
+                            out += line;
+                            is_first_line = false;
+                        }
+                        return out;
+                    });
 }
 
 void TemplateManager::ParseTemplates(Filesystem & fs)

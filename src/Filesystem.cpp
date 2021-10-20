@@ -72,8 +72,18 @@ bool Filesystem::AddSingleFile(std::string path, std::string root)
         std::cout << "Adding file: " << path << " (" << size << " bytes) as " << relpath << " to " << this << std::endl;
     }
 
-    fd.mime = magic_file(m_Magic, path.c_str());
-    m_Files[relpath] = fd;
+    {
+        char const * const mp = magic_file(m_Magic, path.c_str());
+        if (mp != NULL)
+        {
+            fd.mime = magic_file(m_Magic, path.c_str());
+        }
+        else
+        {
+            fd.mime = "application/octet-stream";
+        }
+        m_Files[relpath] = fd;
+    }
 
     return true;
 }

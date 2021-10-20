@@ -16,6 +16,10 @@ struct blog_entry
 
     std::string const metadata_filename;
     std::string const content_filename;
+
+    std::string title;
+    std::vector<std::string> tags;
+    std::string author;
     std::time_t createDate;
     std::time_t publishDate;
     bool published;

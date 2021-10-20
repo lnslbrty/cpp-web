@@ -41,9 +41,9 @@ bool Blog::Init()
 
         m_Redirections.push_back(std::filesystem::path(jfile.first).stem());
     }
-    std::sort(m_BlogEntriesSortedByDate.begin(), m_BlogEntriesSortedByDate.end(), [](auto const & a, auto const & b) {
-        return a->publishDate > b->publishDate;
-    });
+    std::sort(m_BlogEntriesSortedByDate.begin(),
+              m_BlogEntriesSortedByDate.end(),
+              [](auto const & a, auto const & b) { return a->publishDate > b->publishDate; });
 
     m_BlogContents.Init();
 
@@ -100,17 +100,19 @@ bool Blog::ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry 
 {
     bool retval = true;
     std::function<bool(BlogMetadata const &, std::string const)> validateMetadata =
-        [blogEntry](BlogMetadata const & bm, std::string const tname) {
-            if (bm.find(tname) == bm.cend())
-            {
-                std::cerr << "Metadata validation: JSON key '" << tname << "' missing in "
-                          << blogEntry->metadata_filename << std::endl;
-                return false;
-            }
-            return true;
-        };
-    std::function<bool(std::string const &, std::time_t &)> parseDateTime = [](std::string const & timeStr,
-                                                                               std::time_t & time) {
+        [blogEntry](BlogMetadata const & bm, std::string const tname)
+    {
+        if (bm.find(tname) == bm.cend())
+        {
+            std::cerr << "Metadata validation: JSON key '" << tname << "' missing in " << blogEntry->metadata_filename
+                      << std::endl;
+            return false;
+        }
+        return true;
+    };
+    std::function<bool(std::string const &, std::time_t &)> parseDateTime =
+        [](std::string const & timeStr, std::time_t & time)
+    {
         std::tm tm = {};
         std::stringstream ss(timeStr);
         ss >> std::get_time(&tm, "%d.%m.%y %H:%M");
@@ -123,6 +125,27 @@ bool Blog::ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry 
         }
         return true;
     };
+
+    if (validateMetadata(blogMetadata, "title") == false)
+    {
+        retval = false;
+    }
+    blogEntry->title = blogMetadata["title"];
+
+    if (validateMetadata(blogMetadata, "tags") == false)
+    {
+        retval = false;
+    }
+    for (auto const & tag : blogMetadata["tags"])
+    {
+        blogEntry->tags.push_back(tag);
+    }
+
+    if (validateMetadata(blogMetadata, "author") == false)
+    {
+        retval = false;
+    }
+    blogEntry->author = blogMetadata["author"];
 
     if (validateMetadata(blogMetadata, "createDate") == false ||
         parseDateTime(blogMetadata["createDate"], blogEntry->createDate) == false)
@@ -184,6 +207,9 @@ void Blog::GenerateBlogListing(RenderData & rd)
         RenderData re;
         re["metadata_filename"] = e->metadata_filename;
         re["content_filename"] = e->content_filename;
+        re["title"] = e->title;
+        re["tags"] = e->tags;
+        re["author"] = e->author;
         re["createDate"] = e->createDate;
         re["publishDate"] = e->publishDate;
         re["published"] = e->published;

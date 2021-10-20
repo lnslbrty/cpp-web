@@ -189,12 +189,14 @@ bool EventManager::Init(std::string host, uint16_t port)
     }
     evhttp_set_gencb(m_EvHttp, EvGenericInterceptor, &m_DefaultCallback);
 
-    m_EvSocket = evhttp_bind_socket_with_handle(m_EvHttp, host.c_str(), port);
-    if (m_EvSocket == nullptr)
+    if (evhttp_bind_socket(m_EvHttp, host.c_str(), port) != 0)
     {
         fprintf(stderr, "couldn't bind to %s:%d. Exiting.\n", host.c_str(), port);
         return false;
     }
+
+    evhttp_set_allowed_methods(m_EvHttp, EVHTTP_REQ_GET | EVHTTP_REQ_POST | EVHTTP_REQ_HEAD);
+    evhttp_set_default_content_type(m_EvHttp, NULL);
 
     m_EvTermEvent = evsignal_new(m_EvBase, SIGINT, do_term, m_EvBase);
     if (m_EvTermEvent == nullptr)

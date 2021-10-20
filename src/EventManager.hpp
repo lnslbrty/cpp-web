@@ -42,7 +42,6 @@ private:
     struct event_config * m_EvConfig = nullptr;
     struct event_base * m_EvBase = nullptr;
     struct evhttp * m_EvHttp = nullptr;
-    struct evhttp_bound_socket * m_EvSocket = nullptr;
     struct evconnlistener * m_EvListener = nullptr;
     struct event * m_EvTermEvent = nullptr;
 };

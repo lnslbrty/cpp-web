@@ -1,5 +1,8 @@
 {
+    "title": "Second blog entry.",
+    "tags": [ "bla" ],
+    "author": "lns",
     "createDate": "23.02.1989 23:59",
     "publishDate": "30.12.2020 1:00",
-    "published": false
+    "published": true
 }

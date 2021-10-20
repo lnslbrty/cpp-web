@@ -6,14 +6,27 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fpic -fno-omit-frame-pointer -fno-rtti -ffunctio
 set(CMAKE_CXX_FLAGS_RELEASE "-Os -fpic -fomit-frame-pointer -ffunction-sections -fdata-sections -flto")
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-gc-sections")
 
-set(INJA_SRCDIR "${PROJECT_SOURCE_DIR}/deps/inja" CACHE STRING "Path to the inja source directory.")
+set(INJA_SRCDIR "${PROJECT_SOURCE_DIR}/deps/inja" CACHE STRING
+                "Path to the inja source directory.")
 if(NOT EXISTS "${INJA_SRCDIR}/single_include/inja/inja.hpp")
     message(FATAL_ERROR "inja missing")
 endif()
 
-include_directories(${CPP_HTTPLIB_SRCDIR} ${INJA_SRCDIR}/single_include ${INJA_SRCDIR}/third_party/include)
+set(MD4C_SRCDIR "${PROJECT_SOURCE_DIR}/deps/md4c/src" CACHE STRING
+                "Path to the md4c source directory.")
+if(NOT EXISTS "${MD4C_SRCDIR}/md4c-html.h")
+    message(FATAL_ERROR "md4c missing")
+endif()
+
+include_directories(${CPP_HTTPLIB_SRCDIR} ${INJA_SRCDIR}/single_include
+                                          ${INJA_SRCDIR}/third_party/include
+                                          ${MD4C_SRCDIR})
+set(MD4C_SOURCES "${MD4C_SRCDIR}/entity.c"
+                 "${MD4C_SRCDIR}/md4c.c"
+                 "${MD4C_SRCDIR}/md4c-html.c")
+
 file(GLOB_RECURSE SOURCES "src/*.cpp")
-add_executable(cpp-web ${SOURCES})
+add_executable(cpp-web ${MD4C_SOURCES} ${SOURCES})
 #target_compile_definitions(cpp-web PUBLIC CPPHTTPLIB_THREAD_POOL_COUNT=4)
 #target_compile_options(cpp-web PUBLIC "-std=c++14")
 if(CMAKE_BUILD_TYPE MATCHES Release)

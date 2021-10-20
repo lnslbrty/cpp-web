@@ -1,2 +1,5 @@
 Text
 =======
+
+*lorem* **ipsum**
+~~striked~~

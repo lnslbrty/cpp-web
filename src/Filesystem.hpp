@@ -9,11 +9,12 @@
 #include <vector>
 
 using FilesDict = std::unordered_map<std::string, struct file_data>;
+using Data = std::vector<unsigned char>;
 
 struct file_data
 {
     std::string mime;
-    std::vector<unsigned char> data;
+    Data data;
 };
 
 class Filesystem
