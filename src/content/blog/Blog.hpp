@@ -38,9 +38,9 @@ public:
     void Shutdown();
     bool Render(RequestResponse & rr, RenderData & rd, std::string & out);
 
-    std::string const & GetUriBasePath() const;
+    std::string & GetUriBasePath();
     std::string const & GetMainTemplate() const;
-    Redirections const & GetRedirections() const;
+    Redirections & GetRedirections();
 
     static bool ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry & blogEntry);
     bool ValidateEntries() const;

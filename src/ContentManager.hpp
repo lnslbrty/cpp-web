@@ -28,6 +28,7 @@ public:
     bool Render(char const * basePath, RequestResponse & rr, std::string & out);
     ContentModules const & GetAllModules() const;
     ContentModules const & GetAllModulesRoutes() const;
+    static void RemoveGarbageSlashes(std::string & uri_basepath);
 
 private:
     std::shared_ptr<TemplateManager> m_TemplateManager;

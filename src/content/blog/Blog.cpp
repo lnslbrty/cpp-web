@@ -17,7 +17,8 @@ bool Blog::Init()
 {
     bool retval = true;
 
-    std::cout << "Blog entries path: " << m_BlogPath << std::endl;
+    std::cout << "Blog entries filesystem path: " << m_BlogPath << std::endl;
+    std::cout << "Blog entries URI base path: " << m_UriBasePath << std::endl;
     std::vector<std::string> extensions = {"json"};
 
     Filesystem fs;
@@ -39,7 +40,7 @@ bool Blog::Init()
         }
         m_BlogEntriesSortedByDate.push_back(be);
 
-        m_Redirections.push_back(std::filesystem::path(jfile.first).stem());
+        m_Redirections.push_back(m_UriBasePath + "/" + std::string(std::filesystem::path(jfile.first).stem()));
     }
     std::sort(m_BlogEntriesSortedByDate.begin(),
               m_BlogEntriesSortedByDate.end(),
@@ -81,7 +82,7 @@ bool Blog::Render(RequestResponse & rr, RenderData & rd, std::string & out)
     return true;
 }
 
-std::string const & Blog::GetUriBasePath() const
+std::string & Blog::GetUriBasePath()
 {
     return m_UriBasePath;
 }
@@ -91,7 +92,7 @@ std::string const & Blog::GetMainTemplate() const
     return m_MainTemplatePath;
 }
 
-Redirections const & Blog::GetRedirections() const
+Redirections & Blog::GetRedirections()
 {
     return m_Redirections;
 }

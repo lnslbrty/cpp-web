@@ -1,12 +1,13 @@
 #include "RequestResponse.hpp"
 
 RequestResponse::RequestResponse(char const * const uri_path, struct evhttp_request * const req)
-    : m_UriPath(uri_path), m_Request(req)
+    : m_UriPath(uri_path), m_Request(req), m_InputHeader(nullptr), m_OutputHeader(nullptr)
 {
 }
 
 RequestResponse::~RequestResponse()
 {
+    evhttp_clear_headers(&m_Query);
 }
 
 void RequestResponse::UseInputHeader()
@@ -19,13 +20,23 @@ void RequestResponse::UseOutputHeader()
     m_OutputHeader = evhttp_request_get_output_headers(m_Request);
 }
 
-bool RequestResponse::AddOutputHeaderByRef(std::string const & key, std::string const & value)
+bool RequestResponse::UseUri()
 {
-    if (m_OutputHeader == nullptr)
+    struct evhttp_uri const * const uri = evhttp_request_get_evhttp_uri(m_Request);
+    if (uri == nullptr)
     {
         return false;
     }
+    char const * const query = evhttp_uri_get_query(uri);
+    if (query == nullptr)
+    {
+        return false;
+    }
+    return evhttp_parse_query_str(query, &m_Query) == 0;
+}
 
+bool RequestResponse::AddOutputHeaderByRef(std::string const & key, std::string const & value)
+{
     return evhttp_add_header(m_OutputHeader, key.c_str(), value.c_str()) == 0;
 }
 
@@ -36,11 +47,6 @@ bool RequestResponse::AddOutputHeader(std::string const key, std::string const v
 
 bool RequestResponse::RemoveOutputHeaderByRef(std::string const & key)
 {
-    if (m_OutputHeader == nullptr)
-    {
-        return false;
-    }
-
     return evhttp_remove_header(m_OutputHeader, key.c_str()) == 0;
 }
 
@@ -51,11 +57,6 @@ bool RequestResponse::RemoveOutputHeader(std::string const key)
 
 bool RequestResponse::GetInputHeaderByRef(std::string const & key, std::string & value)
 {
-    if (m_InputHeader == nullptr)
-    {
-        return false;
-    }
-
     char const * const v = evhttp_find_header(m_InputHeader, key.c_str());
 
     if (v == nullptr)
@@ -70,4 +71,16 @@ bool RequestResponse::GetInputHeaderByRef(std::string const & key, std::string &
 bool RequestResponse::GetInputHeader(std::string const key, std::string value)
 {
     return GetInputHeaderByRef(key, value);
+}
+
+bool RequestResponse::QueryValueEquals(std::string key, std::string value)
+{
+    char const * const v = evhttp_find_header(&m_Query, key.c_str());
+
+    if (v == nullptr)
+    {
+        return false;
+    }
+
+    return value == std::string(v);
 }

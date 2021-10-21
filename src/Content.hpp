@@ -19,9 +19,9 @@ public:
 
     virtual bool Render(RequestResponse & rr, RenderData & rd, std::string & out) = 0;
 
-    virtual std::string const & GetUriBasePath() const = 0;
+    virtual std::string & GetUriBasePath() = 0;
     virtual std::string const & GetMainTemplate() const = 0;
-    virtual Redirections const & GetRedirections() const = 0;
+    virtual Redirections & GetRedirections() = 0;
 };
 
 #endif

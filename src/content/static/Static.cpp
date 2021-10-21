@@ -44,7 +44,7 @@ bool Static::Render(RequestResponse & rr, RenderData & rd, std::string & out)
     return true;
 }
 
-std::string const & Static::GetUriBasePath() const
+std::string & Static::GetUriBasePath()
 {
     return m_UriBasePath;
 }
@@ -54,7 +54,7 @@ std::string const & Static::GetMainTemplate() const
     return m_MainTemplatePath;
 }
 
-Redirections const & Static::GetRedirections() const
+Redirections & Static::GetRedirections()
 {
     return m_Redirections;
 }

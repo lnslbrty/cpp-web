@@ -13,6 +13,7 @@
 
 int main(int argc, char ** argv)
 {
+    std::string wwwroot = "./wwwroot";
     char const * host = "127.0.0.1";
     uint16_t port = 9000;
 
@@ -35,8 +36,8 @@ int main(int argc, char ** argv)
     }
 
     std::shared_ptr<TemplateManager> tmgr = std::make_shared<TemplateManager>();
-    std::shared_ptr<ContentManager> ctmgr = std::make_shared<ContentManager>();
-    ctmgr->SetTemplateSystem(tmgr);
+    std::shared_ptr<ContentManager> cmgr = std::make_shared<ContentManager>();
+    cmgr->SetTemplateSystem(tmgr);
 
     {
         std::shared_ptr<Filesystem> static_fs = std::make_shared<Filesystem>();
@@ -47,9 +48,10 @@ int main(int argc, char ** argv)
                 return 1;
             }
         }
-        static_fs->Scan("./wwwroot", {"html", "tmpl"}, true);
+        std::cout << "Static fs: " << wwwroot << std::endl;
+        static_fs->Scan(wwwroot, {"html", "tmpl"}, true);
 
-        ctmgr->RegisterModule(std::make_shared<Static>("/static", static_fs));
+        cmgr->RegisterModule(std::make_shared<Static>("/static", static_fs));
     }
 
     {
@@ -61,21 +63,23 @@ int main(int argc, char ** argv)
                 return 1;
             }
         }
-        dynamic_fs.Scan("./wwwroot", {"html", "tmpl"}, false);
+        std::cout << "Dynamic fs: " << wwwroot << std::endl;
+        dynamic_fs.Scan(wwwroot, {"html", "tmpl"}, false);
 
         tmgr->ParseTemplates(dynamic_fs);
     }
 
-    ctmgr->RegisterModule(std::make_shared<Blog>("/blog", "index.html", "./blog"));
+    cmgr->RegisterModule(std::make_shared<Markdown>("/", "./pages", "index.html"));
+    cmgr->RegisterModule(std::make_shared<Blog>("/blog", "blog/index.html", "./blog"));
 
-    if (ctmgr->InitAll() == false)
+    if (cmgr->InitAll() == false)
     {
         std::cout << "InitAll() failed." << std::endl;
         return 1;
     }
 
-    EventManager evmgr(ctmgr);
+    EventManager evmgr(cmgr);
     evmgr.Init(host, port);
 
-    // ctmgr.ShutdownAll();
+    // cmgr.ShutdownAll();
 }

@@ -1,0 +1,27 @@
+<html><body>
+<p>
+<b>blabla</b>
+Test fn....: <b>{{ test_fn }}</b><br>
+Test RetFN.: <b>{{ test_return_true }}</b><br><br><br>
+{% if exists("blog_listing") and length(blog_listing) > 0 %}
+<table>
+## for entry in blog_listing
+    <tr>
+        <td>{{ loop.index1 }}</td>
+        <td>{{ entry.content_filename }}</td>
+        <td>{{ entry.title }}</td>
+        <td>{{ entry.tags }}</td>
+        <td>{{ entry.author }}</td>
+        <td>{{ entry.createDate }}</td>
+        <td>{{ entry.publishDate }}</td>
+        <td>{{ entry.published }}</td>
+        <td>
+            {{ indent(entry.content, 12, false, false) }}
+        </td>
+        <td>{% if loop.is_last == false %}more{% else %}eof{% endif %}<br>
+    </tr>
+## endfor
+</table>
+{% endif %}
+</p>
+</body></html>

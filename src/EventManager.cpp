@@ -63,6 +63,9 @@ extern "C"
                 GenerateInternalErrorPage(req, "EvContentManagerInterceptor: path == nullptr");
                 return;
             }
+#if 1
+            std::cout << "URI Path: " << path << std::endl;
+#endif
 
             std::shared_ptr<ContentManager> const cmgr = *(std::shared_ptr<ContentManager> const *)ev_c_callback;
             RequestResponse rr(path, req);
@@ -177,21 +180,21 @@ bool EventManager::Init(std::string host, uint16_t port)
     {
         if (evhttp_set_cb(m_EvHttp, cm.first.c_str(), EvContentManagerInterceptor, &m_ContentManager) != 0)
         {
-            return false;
+            fprintf(stderr, "Failed to add module callback: %s\n", cm.first.c_str());
         }
     }
     for (auto & cm : m_ContentManager->GetAllModulesRoutes())
     {
         if (evhttp_set_cb(m_EvHttp, cm.first.c_str(), EvContentManagerInterceptor, &m_ContentManager) != 0)
         {
-            return false;
+            fprintf(stderr, "Failed to add route callback: %s\n", cm.first.c_str());
         }
     }
     evhttp_set_gencb(m_EvHttp, EvGenericInterceptor, &m_DefaultCallback);
 
     if (evhttp_bind_socket(m_EvHttp, host.c_str(), port) != 0)
     {
-        fprintf(stderr, "couldn't bind to %s:%d. Exiting.\n", host.c_str(), port);
+        fprintf(stderr, "Couldn't bind to %s:%d. Exiting.\n", host.c_str(), port);
         return false;
     }
 

@@ -15,9 +15,9 @@ public:
     void Shutdown();
     bool Render(RequestResponse & rr, RenderData & rd, std::string & out);
 
-    std::string const & GetUriBasePath() const;
+    std::string & GetUriBasePath();
     std::string const & GetMainTemplate() const;
-    Redirections const & GetRedirections() const;
+    Redirections & GetRedirections();
 
     bool HasMarkdownFile(std::string filePath) const;
     bool HasMarkdownURI(std::string uriPath) const;

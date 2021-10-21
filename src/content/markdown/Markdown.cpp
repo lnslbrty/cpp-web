@@ -8,6 +8,11 @@ Markdown::Markdown(std::string uriBasePath, std::string markdownFilesPath, std::
       m_MainTemplatePath(mainTemplatePath),
       m_MarkdownFilesPath(markdownFilesPath)
 {
+    if (m_MainTemplatePath.empty() == false)
+    {
+        m_Redirections.push_back(uriBasePath + "/");
+        m_Redirections.push_back(uriBasePath + "/index.html");
+    }
 }
 
 extern "C" void markdown_to_html_conversion(const MD_CHAR * const text, MD_SIZE size, void * const userdata)
@@ -20,6 +25,10 @@ extern "C" void markdown_to_html_conversion(const MD_CHAR * const text, MD_SIZE 
 bool Markdown::Init()
 {
     std::cout << "Markdown files path: " << m_MarkdownFilesPath << std::endl;
+    if (m_UriBasePath.empty() == false)
+    {
+        std::cout << "Markdown files URI base path: " << m_UriBasePath << std::endl;
+    }
 
     std::vector<std::string> extensions = {"md"};
 
@@ -68,15 +77,35 @@ bool Markdown::Render(RequestResponse & rr, RenderData & rd, std::string & out)
     (void)rd;
     (void)out;
 
+    std::string md_file;
+
     if (m_MainTemplatePath.empty() == true)
     {
         return false;
     }
 
-    return false; /* TODO: Make markdown module usable as standalone module?! */
+    if (rr.GetUriPath() == m_UriBasePath || rr.GetUriPath() == m_UriBasePath + "/" ||
+        rr.GetUriPath() == m_UriBasePath + "/index.html")
+    {
+        rr.UseUri();
+        if (rr.QueryValueEquals("get", "bla") == true)
+        {
+            rd["content"] = "bla";
+        }
+        else
+        {
+            rd["content"] = "blubb";
+        }
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
 }
 
-std::string const & Markdown::GetUriBasePath() const
+std::string & Markdown::GetUriBasePath()
 {
     return m_UriBasePath;
 }
@@ -86,7 +115,7 @@ std::string const & Markdown::GetMainTemplate() const
     return m_MainTemplatePath;
 }
 
-Redirections const & Markdown::GetRedirections() const
+Redirections & Markdown::GetRedirections()
 {
     return m_Redirections;
 }
