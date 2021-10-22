@@ -9,13 +9,11 @@
 
 struct blog_entry
 {
-    explicit blog_entry(std::string const & metadata_filename, std::string const & content_filename)
-        : metadata_filename(metadata_filename), content_filename(content_filename)
+    explicit blog_entry(std::string const & filename) : filename(filename)
     {
     }
 
-    std::string const metadata_filename;
-    std::string const content_filename;
+    std::string const filename;
 
     std::string title;
     std::vector<std::string> tags;

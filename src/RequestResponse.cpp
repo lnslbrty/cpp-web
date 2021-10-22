@@ -28,11 +28,8 @@ bool RequestResponse::UseUri()
         return false;
     }
     char const * const query = evhttp_uri_get_query(uri);
-    if (query == nullptr)
-    {
-        return false;
-    }
-    return evhttp_parse_query_str(query, &m_Query) == 0;
+    evhttp_parse_query_str(query, &m_Query);
+    return true;
 }
 
 bool RequestResponse::AddOutputHeaderByRef(std::string const & key, std::string const & value)

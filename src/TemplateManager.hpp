@@ -3,6 +3,7 @@
 
 #include "Content.hpp"
 #include "Filesystem.hpp"
+#include "RequestResponse.hpp"
 
 #include <inja/inja.hpp>
 
@@ -21,7 +22,6 @@ public:
     bool RenderTemplate(std::string const & templatePath, RenderData const & rd, std::string & out);
 
 private:
-    inja::TemplateStorage m_Templates;
     inja::Environment m_Inja;
 };
 

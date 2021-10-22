@@ -112,7 +112,8 @@ static inline void default_evhttp_callback(struct evhttp_request * const req, Ev
     struct evbuffer * const output = evbuffer_new();
     if (output != nullptr)
     {
-        static char const * const page_404 = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+        static char const * const page_404 =
+            "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
             "<html>\n"
             "\t<head><title>404 Not Found</title></head>\n"
             "\t<body><h1>Not Found</h1>The requested URI was not found.</body>\n"
@@ -190,7 +191,8 @@ bool EventManager::Init(std::string host, uint16_t port)
     }
     for (auto & cm : m_ContentManager->GetAllModulesRoutes())
     {
-        if (evhttp_set_cb(m_EvHttp, cm.first.c_str(), EvContentManagerInterceptor, &m_ContentManager) != 0)
+        if (evhttp_set_cb(m_EvHttp, cm.first.c_str(), EvContentManagerInterceptor, &m_ContentManager) != 0 &&
+            cm.first != "/")
         {
             fprintf(stderr, "Failed to add route callback: %s\n", cm.first.c_str());
         }

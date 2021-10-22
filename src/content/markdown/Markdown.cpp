@@ -1,6 +1,10 @@
 #include "Markdown.hpp"
 
+#include "../../ContentManager.hpp"
+
 #include <md4c-html.h>
+
+#include <filesystem>
 
 Markdown::Markdown(std::string uriBasePath, std::string markdownFilesPath, std::string mainTemplatePath)
     : Content(),
@@ -20,6 +24,12 @@ extern "C" void markdown_to_html_conversion(const MD_CHAR * const text, MD_SIZE 
     std::string * html = (std::string *)userdata;
 
     html->append(text, size);
+}
+
+bool Markdown::Init(std::string const & uriBasePath)
+{
+    m_UriBasePath = uriBasePath;
+    return Init();
 }
 
 bool Markdown::Init()
@@ -60,7 +70,10 @@ bool Markdown::Init()
             return false;
         }
 
-        m_Markdowns[mfile.first] = std::make_shared<std::string>(html);
+        std::string full_uri_path = m_UriBasePath + "/" + std::string(std::filesystem::path(mfile.first).stem());
+        ContentManager::RemoveGarbageSlashes(full_uri_path);
+        m_Markdowns[full_uri_path] = std::make_shared<std::string>(html);
+        m_Redirections.push_back(full_uri_path);
     }
 
     return true;
@@ -84,35 +97,52 @@ bool Markdown::Render(RequestResponse & rr, RenderData & rd, std::string & out)
         return false;
     }
 
+    if (rr.UseUri() == false)
+    {
+        return false;
+    }
+
+    rd["uri"] = rr.GetUriPath();
+
     if (rr.GetUriPath() == m_UriBasePath || rr.GetUriPath() == m_UriBasePath + "/" ||
         rr.GetUriPath() == m_UriBasePath + "/index.html")
     {
-        rr.UseUri();
         std::string requested_markdown;
 
-        rd["uri"] = rr.GetUriPath();
         if (rr.GetQueryValue("get", requested_markdown) == true)
         {
-            requested_markdown += ".md";
-            if (HasMarkdownFile(requested_markdown) == true)
+            if (HasMarkdownFile(m_UriBasePath + "/" + requested_markdown) == true)
             {
-                rd["content"] = *GetMarkdownHTML(requested_markdown);
-            } else if (HasMarkdownFile("index.md") == true) {
-                rd["content"] = *GetMarkdownHTML("index.md");
-            } else {
+                rd["content"] = *GetMarkdownHTML(m_UriBasePath + "/" + requested_markdown);
+            }
+            else if (HasMarkdownFile(m_UriBasePath + "/index.md") == true)
+            {
+                rd["content"] = *GetMarkdownHTML(m_UriBasePath + "/index.md");
+            }
+            else
+            {
                 return false;
             }
         }
-        else if (HasMarkdownFile("index.md") == true)
+        else if (HasMarkdownFile(m_UriBasePath + "/index") == true)
         {
-            rd["content"] = *GetMarkdownHTML("index.md");
-        } else {
+            rd["content"] = *GetMarkdownHTML(m_UriBasePath + "/index");
+        }
+        else
+        {
             return false;
         }
     }
     else
     {
-        return false;
+        if (HasMarkdownFile(rr.GetUriPath()) == true)
+        {
+            rd["content"] = *GetMarkdownHTML(rr.GetUriPath());
+        }
+        else
+        {
+            return false;
+        }
     }
 
     return true;

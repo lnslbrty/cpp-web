@@ -4129,6 +4129,8 @@ public:
   void include_template(const std::string &name, const Template &tmpl) {
     template_storage[name] = tmpl;
   }
+
+  TemplateStorage & GetTemplateStorage() { return template_storage; }
 };
 
 /*!

@@ -19,6 +19,11 @@ bool ContentManager::RegisterModule(std::shared_ptr<Content> ctnt)
 #endif
     m_ContentModules[basePath] = ctnt;
 
+    if (basePath.back() == '/')
+    {
+        basePath.pop_back();
+    }
+
     return true;
 }
 
@@ -52,12 +57,6 @@ bool ContentManager::InitAll(void)
 #endif
             }
             m_ContentModulesRoutes[redirect] = content.second;
-        }
-
-        std::string & basePath = content.second->GetUriBasePath();
-        if (basePath.back() == '/')
-        {
-            basePath.pop_back();
         }
     }
 

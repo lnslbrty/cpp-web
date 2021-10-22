@@ -1,5 +1,7 @@
 #include "Blog.hpp"
 
+#include "../../ContentManager.hpp"
+
 #include <filesystem>
 
 Blog::Blog(std::string uriBasePath, std::string blogPath, std::string mainTemplatePath)
@@ -29,10 +31,11 @@ bool Blog::Init()
 
     for (auto const & jfile : fs.GetFiles())
     {
+        std::string full_uri_path = m_UriBasePath + "/" + std::string(std::filesystem::path(jfile.first).stem());
+        ContentManager::RemoveGarbageSlashes(full_uri_path);
+
         auto const json_metadata = inja::json::parse(jfile.second.data);
-        BlogEntry be =
-            std::make_shared<struct blog_entry>(jfile.first,
-                                                std::string(std::filesystem::path(jfile.first).stem()) + ".md");
+        BlogEntry be = std::make_shared<struct blog_entry>(full_uri_path);
         if (Blog::ValidateAndSetMetdadata(json_metadata, be) == false)
         {
             std::cerr << "Blog Metadata validation failed." << std::endl;
@@ -40,13 +43,13 @@ bool Blog::Init()
         }
         m_BlogEntriesSortedByDate.push_back(be);
 
-        m_Redirections.push_back(m_UriBasePath + "/" + std::string(std::filesystem::path(jfile.first).stem()));
+        m_Redirections.push_back(full_uri_path);
     }
-    std::sort(m_BlogEntriesSortedByDate.begin(),
-              m_BlogEntriesSortedByDate.end(),
-              [](auto const & a, auto const & b) { return a->publishDate > b->publishDate; });
+    std::sort(m_BlogEntriesSortedByDate.begin(), m_BlogEntriesSortedByDate.end(), [](auto const & a, auto const & b) {
+        return a->publishDate > b->publishDate;
+    });
 
-    m_BlogContents.Init();
+    m_BlogContents.Init(m_UriBasePath);
 
     if (retval == false)
     {
@@ -76,7 +79,7 @@ bool Blog::Render(RequestResponse & rr, RenderData & rd, std::string & out)
     }
     else
     {
-        rd["blog_content"] = "bla";
+        return false;
     }
 
     return true;
@@ -101,19 +104,17 @@ bool Blog::ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry 
 {
     bool retval = true;
     std::function<bool(BlogMetadata const &, std::string const)> validateMetadata =
-        [blogEntry](BlogMetadata const & bm, std::string const tname)
-    {
-        if (bm.find(tname) == bm.cend())
-        {
-            std::cerr << "Metadata validation: JSON key '" << tname << "' missing in " << blogEntry->metadata_filename
-                      << std::endl;
-            return false;
-        }
-        return true;
-    };
-    std::function<bool(std::string const &, std::time_t &)> parseDateTime =
-        [](std::string const & timeStr, std::time_t & time)
-    {
+        [blogEntry](BlogMetadata const & bm, std::string const tname) {
+            if (bm.find(tname) == bm.cend())
+            {
+                std::cerr << "Metadata validation: JSON key '" << tname << "' missing in "
+                          << blogEntry->filename + ".json" << std::endl;
+                return false;
+            }
+            return true;
+        };
+    std::function<bool(std::string const &, std::time_t &)> parseDateTime = [](std::string const & timeStr,
+                                                                               std::time_t & time) {
         std::tm tm = {};
         std::stringstream ss(timeStr);
         ss >> std::get_time(&tm, "%d.%m.%y %H:%M");
@@ -175,10 +176,10 @@ bool Blog::ValidateEntries() const
 
     for (auto const & e : m_BlogEntriesSortedByDate)
     {
-        if (m_BlogContents.HasMarkdownFile(e->content_filename) == false)
+        if (m_BlogContents.HasMarkdownFile(e->filename) == false)
         {
-            std::cerr << "Blog entry metadata " << e->metadata_filename << " exists, but markdown file "
-                      << e->content_filename << " not." << std::endl;
+            std::cerr << "Blog entry metadata " << e->filename << ".json exists, but markdown file " << e->filename
+                      << ".md not." << std::endl;
             retval = false;
         }
     }
@@ -186,9 +187,10 @@ bool Blog::ValidateEntries() const
     {
         if (std::any_of(m_BlogEntriesSortedByDate.cbegin(),
                         m_BlogEntriesSortedByDate.cend(),
-                        [m](BlogEntry const & be) { return m.first == be->content_filename; }) == false)
+                        [m](BlogEntry const & be) { return m.first == be->filename; }) == false)
         {
-            std::cerr << "Blog entry markdown " << m.first << " exists, but metadata not." << std::endl;
+            std::cerr << "Blog entry markdown " << m.first << ".md exists, but metadata " << m.first << ".json not."
+                      << std::endl;
             retval = false;
         }
     }
@@ -206,17 +208,16 @@ void Blog::GenerateBlogListing(RenderData & rd)
         }
 
         RenderData re;
-        re["metadata_filename"] = e->metadata_filename;
-        re["content_filename"] = e->content_filename;
+        re["filename"] = e->filename;
         re["title"] = e->title;
         re["tags"] = e->tags;
         re["author"] = e->author;
         re["createDate"] = e->createDate;
         re["publishDate"] = e->publishDate;
         re["published"] = e->published;
-        if (m_BlogContents.HasMarkdownFile(e->content_filename) == true)
+        if (m_BlogContents.HasMarkdownFile(e->filename) == true)
         {
-            re["content"] = m_BlogContents.GetMarkdownHTML(e->content_filename)->c_str();
+            re["content"] = m_BlogContents.GetMarkdownHTML(e->filename)->c_str();
         }
         else
         {

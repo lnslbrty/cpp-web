@@ -11,6 +11,7 @@ class Markdown : public Content
 public:
     explicit Markdown(std::string uriBasePath, std::string markdownFilesPath, std::string mainTemplatePath = "");
 
+    bool Init(std::string const & uriBasePath);
     bool Init();
     void Shutdown();
     bool Render(RequestResponse & rr, RenderData & rd, std::string & out);
