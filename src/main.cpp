@@ -70,7 +70,7 @@ int main(int argc, char ** argv)
     }
 
     cmgr->RegisterModule(std::make_shared<Markdown>("/", "./pages", "index.html"));
-    cmgr->RegisterModule(std::make_shared<Blog>("/blog", "blog/index.html", "./blog"));
+    cmgr->RegisterModule(std::make_shared<Blog>("/blog", "./blog", "blog/index.html"));
 
     if (cmgr->InitAll() == false)
     {

@@ -32,7 +32,7 @@ using BlogEntries = std::vector<BlogEntry>;
 class Blog : public Content
 {
 public:
-    explicit Blog(std::string uriBasePath, std::string mainTemplatePath, std::string blogPath);
+    explicit Blog(std::string uriBasePath, std::string blogPath, std::string mainTemplatePath);
 
     bool Init();
     void Shutdown();

@@ -112,8 +112,13 @@ static inline void default_evhttp_callback(struct evhttp_request * const req, Ev
     struct evbuffer * const output = evbuffer_new();
     if (output != nullptr)
     {
-        evbuffer_add_printf(output, "%s\n", "<html><body><b>default page</b></body></html>");
-        evhttp_send_reply(req, 200, "OK", output);
+        static char const * const page_404 = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n"
+            "<html>\n"
+            "\t<head><title>404 Not Found</title></head>\n"
+            "\t<body><h1>Not Found</h1>The requested URI was not found.</body>\n"
+            "</html>\n";
+        evbuffer_add_printf(output, "%s\n", page_404);
+        evhttp_send_reply(req, 404, "Not found", output);
         evbuffer_free(output);
     }
 }

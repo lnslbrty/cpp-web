@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-Blog::Blog(std::string uriBasePath, std::string mainTemplatePath, std::string blogPath)
+Blog::Blog(std::string uriBasePath, std::string blogPath, std::string mainTemplatePath)
     : Content(),
       m_UriBasePath(uriBasePath),
       m_MainTemplatePath(mainTemplatePath),
