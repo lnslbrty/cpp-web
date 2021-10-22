@@ -30,7 +30,11 @@ public:
     bool GetInputHeaderByRef(std::string const & key, std::string & value);
     bool GetInputHeader(std::string const key, std::string value);
 
-    bool QueryValueEquals(std::string key, std::string value);
+    bool GetQueryValue(std::string & key, std::string & value);
+    bool GetQueryValue(std::string const key, std::string & value);
+
+    bool QueryValueEquals(std::string & key, std::string value);
+    bool QueryValueEquals(std::string const key, std::string value);
 
 private:
     char const * const m_UriPath;

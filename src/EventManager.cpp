@@ -63,7 +63,7 @@ extern "C"
                 GenerateInternalErrorPage(req, "EvContentManagerInterceptor: path == nullptr");
                 return;
             }
-#if 1
+#if 0
             std::cout << "URI Path: " << path << std::endl;
 #endif
 

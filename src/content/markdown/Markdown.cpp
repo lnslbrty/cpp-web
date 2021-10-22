@@ -88,13 +88,26 @@ bool Markdown::Render(RequestResponse & rr, RenderData & rd, std::string & out)
         rr.GetUriPath() == m_UriBasePath + "/index.html")
     {
         rr.UseUri();
-        if (rr.QueryValueEquals("get", "bla") == true)
+        std::string requested_markdown;
+
+        rd["uri"] = rr.GetUriPath();
+        if (rr.GetQueryValue("get", requested_markdown) == true)
         {
-            rd["content"] = "bla";
+            requested_markdown += ".md";
+            if (HasMarkdownFile(requested_markdown) == true)
+            {
+                rd["content"] = *GetMarkdownHTML(requested_markdown);
+            } else if (HasMarkdownFile("index.md") == true) {
+                rd["content"] = *GetMarkdownHTML("index.md");
+            } else {
+                return false;
+            }
         }
-        else
+        else if (HasMarkdownFile("index.md") == true)
         {
-            rd["content"] = "blubb";
+            rd["content"] = *GetMarkdownHTML("index.md");
+        } else {
+            return false;
         }
     }
     else

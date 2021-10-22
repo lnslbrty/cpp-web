@@ -73,7 +73,32 @@ bool RequestResponse::GetInputHeader(std::string const key, std::string value)
     return GetInputHeaderByRef(key, value);
 }
 
-bool RequestResponse::QueryValueEquals(std::string key, std::string value)
+bool RequestResponse::GetQueryValue(std::string & key, std::string & value)
+{
+    std::string const k = key;
+    return GetQueryValue(k, value);
+}
+
+bool RequestResponse::GetQueryValue(std::string const key, std::string & value)
+{
+    char const * const v = evhttp_find_header(&m_Query, key.c_str());
+
+    if (v == nullptr)
+    {
+        return false;
+    }
+
+    value = v;
+    return true;
+}
+
+bool RequestResponse::QueryValueEquals(std::string & key, std::string value)
+{
+    std::string const k = key;
+    return QueryValueEquals(k, value);
+}
+
+bool RequestResponse::QueryValueEquals(std::string const key, std::string value)
 {
     char const * const v = evhttp_find_header(&m_Query, key.c_str());
 
