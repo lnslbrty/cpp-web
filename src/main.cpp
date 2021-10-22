@@ -59,8 +59,8 @@ int main(int argc, char ** argv)
         tmgr->ParseTemplates(dynamic_fs);
     }
 
-    cmgr->RegisterModule(std::make_shared<Markdown>("/", wwwroot + "/pages", "index.html"));
-    cmgr->RegisterModule(std::make_shared<Blog>("/blog", wwwroot + "/blog", "blog/index.html"));
+    cmgr->RegisterModule(std::make_shared<Markdown>("/p", wwwroot + "/pages", "pages.html"));
+    cmgr->RegisterModule(std::make_shared<Blog>("/", wwwroot + "/blog", "index.html"));
 
     if (cmgr->InitAll() == false)
     {

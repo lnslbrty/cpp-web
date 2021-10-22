@@ -1,5 +1,17 @@
-<html><body>
-    <b>INDEX TMPL</b>
-    {{ uri }}<br>
-    {{ indent(content, 4, false, false) }}
-</body></html>
+## include "00_header.tmpl"
+## if exists("blog_post")
+<a href="{{ blog_post.filename }}">{{ blog_post.title }}</a><br>
+    {{ blog_post.publishDate }} by {{ blog_post.author }}<br>
+{{ blog_post.content }}
+## endif
+## if exists("blog_listing") and length("blog_listing") > 0
+## for entry in blog_listing
+    {{ loop.index1 }}
+    &nbsp;<a href="{{ entry.filename }}">{{ entry.title }}</a> by {{ entry.author }}<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;published {{ entry.publishDate }}<br>
+## if not loop.is_last
+    <br>
+## endif
+## endfor
+## endif
+## include "01_footer.tmpl"

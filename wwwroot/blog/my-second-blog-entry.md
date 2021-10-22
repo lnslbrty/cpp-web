@@ -1,5 +1,0 @@
-Text
-=======
-
-*lorem* **ipsum**
-~~striked~~

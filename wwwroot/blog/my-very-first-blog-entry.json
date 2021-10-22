@@ -1,9 +1,0 @@
-{
-    "title": "My first blog entry!",
-    "tags": [ "test", "bla" ],
-    "author": "lns",
-    "createDate": "22.02.1989 23:59",
-    "publishDate": "31.12.2020 1:00",
-    "published": true,
-    "accessAllowed": true
-}
