@@ -21,19 +21,39 @@ TemplateManager::TemplateManager()
         bool is_first_line = true;
         while (std::getline(stream, line))
         {
-            if (is_first_line == false || args.at(2)->get<bool>() == true)
+            if (is_first_line == false || args.at(2)->get<bool>() == false)
             {
                 if (line != "" || args.at(3)->get<bool>() == false)
                 {
                     line.insert(0, args.at(1)->get<std::size_t>(), ' ');
                 }
             }
-            line += '\n';
+            if (line != "" || args.at(3)->get<bool>() == false)
+            {
+                line += '\n';
+            }
             out += line;
             is_first_line = false;
         }
         return out;
     });
+    /*
+     * prefix(input: str, prefix: str);
+     */
+    AddInjaCallback("prefix", 2, [](inja::Arguments & args) {
+        std::stringstream stream(args.at(0)->get<std::string>());
+        std::string line, out;
+        while (std::getline(stream, line))
+        {
+            out += args.at(1)->get<std::string>() + line + "\n";
+        }
+        return out;
+    });
+
+    m_Inja.set_trim_blocks(true);
+    m_Inja.set_lstrip_blocks(true);
+    m_Inja.set_search_included_templates_in_files(false);
+    m_Inja.set_throw_at_missing_includes(true);
 }
 
 void TemplateManager::ParseTemplates(Filesystem & fs)
