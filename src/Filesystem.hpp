@@ -32,6 +32,7 @@ public:
     bool Scan(std::string root = "./wwwroot");
     bool Scan(std::string root, std::vector<std::string> extensions, bool exclude_extensions = false);
     FilesDict & GetFiles();
+    void GetFilenamesSorted(std::vector<std::string> & sortedFilenames);
 
 private:
     bool AddSingleFile(std::string path, std::string root);

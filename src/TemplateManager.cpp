@@ -38,11 +38,15 @@ TemplateManager::TemplateManager()
 
 void TemplateManager::ParseTemplates(Filesystem & fs)
 {
-    for (auto & tpl : fs.GetFiles())
+    std::vector<std::string> sortedFilenames;
+    auto & files = fs.GetFiles();
+
+    fs.GetFilenamesSorted(sortedFilenames);
+    for (auto const & tpl : sortedFilenames)
     {
-        std::string tmpl(tpl.second.data.data(), tpl.second.data.data() + tpl.second.data.size());
-        m_Inja.include_template(tpl.first, m_Inja.parse(tmpl));
-        std::cout << "File: " << tpl.first << " may contain a renderable template." << std::endl;
+        std::string tmpl(files[tpl].data.data(), files[tpl].data.data() + files[tpl].data.size());
+        m_Inja.include_template(tpl, m_Inja.parse(tmpl));
+        std::cout << "File: " << tpl << " may contain a renderable template." << std::endl;
     }
 }
 

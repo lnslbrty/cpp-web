@@ -135,6 +135,21 @@ FilesDict & Filesystem::GetFiles()
     return m_Files;
 }
 
+void Filesystem::GetFilenamesSorted(std::vector<std::string> & sortedFilenames)
+{
+    for (auto const & f : GetFiles())
+    {
+        sortedFilenames.push_back(f.first);
+    }
+    std::sort(sortedFilenames.begin(), sortedFilenames.end());
+#if 1
+    for (auto const & f : sortedFilenames)
+    {
+        std::cout << "Added file (alnum sorted): " << f << std::endl;
+    }
+#endif
+}
+
 void Filesystem::MagicInit()
 {
     m_Magic = magic_open(MAGIC_MIME_TYPE);
