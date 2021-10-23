@@ -10,15 +10,6 @@
 
 extern "C"
 {
-    struct chunk_req_state
-    {
-        struct event_base * base;
-        struct evhttp_request * req;
-        struct event * timer;
-
-        off_t out_offset;
-    };
-
     static void GenerateInternalErrorPage(struct evhttp_request * const req, std::string text)
     {
         evhttp_clear_headers(evhttp_request_get_output_headers(req));
@@ -232,8 +223,4 @@ void EventManager::SetDefaultCallback(EvFunction fn, EvUserData dat)
 void EventManager::AddCallback(std::string url, EvFunction fn, EvUserData dat)
 {
     m_UrlCallbacks.push_back(EvUrlCallback(url, {fn, dat}));
-}
-
-void EventManager::AddChunkedCallback(std::string url, EvFunction fn, EvUserData dat, struct timeval chunk_timer)
-{
 }

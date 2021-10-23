@@ -41,8 +41,9 @@ bool Blog::Init()
             std::cerr << "Blog Metadata validation failed." << std::endl;
             retval = false;
         }
-        m_BlogEntriesSortedByDate.push_back(be);
 
+        m_BlogEntriesSortedByDate.push_back(be);
+        m_BlogEntries[full_uri_path] = be;
         m_Redirections.push_back(full_uri_path);
     }
     std::sort(m_BlogEntriesSortedByDate.begin(), m_BlogEntriesSortedByDate.end(), [](auto const & a, auto const & b) {
@@ -79,7 +80,7 @@ bool Blog::Render(RequestResponse & rr, RenderData & rd, std::string & out)
     }
     else
     {
-        return false;
+        GetBlogPost(rd["blog_post"], rr.GetUriPath());
     }
 
     return true;
@@ -170,7 +171,7 @@ bool Blog::ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry 
     return retval;
 }
 
-bool Blog::ValidateEntries() const
+bool Blog::ValidateEntries()
 {
     bool retval = true;
 
@@ -183,7 +184,7 @@ bool Blog::ValidateEntries() const
             retval = false;
         }
     }
-    for (auto const & m : m_BlogContents.GetMarkdowns())
+    for (auto & m : m_BlogContents.GetMarkdowns())
     {
         if (std::any_of(m_BlogEntriesSortedByDate.cbegin(),
                         m_BlogEntriesSortedByDate.cend(),
@@ -198,6 +199,18 @@ bool Blog::ValidateEntries() const
     return retval;
 }
 
+void Blog::FillRenderData(RenderData & re, BlogEntry const & be)
+{
+          re["filename"] = be->filename;
+          re["title"] = be->title;
+          re["tags"] = be->tags;
+          re["author"] = be->author;
+          re["createDate"] = be->createDate;
+          re["publishDate"] = be->publishDate;
+          re["published"] = be->published;
+          re["content"] = "";
+}
+
 void Blog::GenerateBlogListing(RenderData & rd)
 {
     for (auto const & e : m_BlogEntriesSortedByDate)
@@ -208,22 +221,23 @@ void Blog::GenerateBlogListing(RenderData & rd)
         }
 
         RenderData re;
-        re["filename"] = e->filename;
-        re["title"] = e->title;
-        re["tags"] = e->tags;
-        re["author"] = e->author;
-        re["createDate"] = e->createDate;
-        re["publishDate"] = e->publishDate;
-        re["published"] = e->published;
+        FillRenderData(re, e);
         if (m_BlogContents.HasMarkdownFile(e->filename) == true)
         {
             re["content"] = m_BlogContents.GetMarkdownHTML(e->filename)->c_str();
         }
-        else
-        {
-            re["content"] = "";
-        }
-
         rd += re;
     }
+}
+
+void Blog::GetBlogPost(RenderData & rd, char const * blogPostUri)
+{
+    RenderData re;
+
+    if (m_BlogContents.HasMarkdownFile(blogPostUri) == true)
+    {
+        FillRenderData(re, m_BlogEntries[blogPostUri]);
+        re["content"] = m_BlogContents.GetMarkdownHTML(blogPostUri)->c_str();
+    }
+    rd = re;
 }

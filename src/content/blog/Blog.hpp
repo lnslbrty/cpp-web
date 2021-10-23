@@ -25,7 +25,8 @@ struct blog_entry
 
 using BlogMetadata = inja::json;
 using BlogEntry = std::shared_ptr<struct blog_entry>;
-using BlogEntries = std::vector<BlogEntry>;
+using BlogEntriesVector = std::vector<BlogEntry>;
+using BlogEntriesMap = std::unordered_map<std::string, BlogEntry>;
 
 class Blog : public Content
 {
@@ -41,8 +42,10 @@ public:
     Redirections & GetRedirections();
 
     static bool ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry & blogEntry);
-    bool ValidateEntries() const;
+    bool ValidateEntries();
+    void FillRenderData(RenderData & re, BlogEntry const & be);
     void GenerateBlogListing(RenderData & rd);
+    void GetBlogPost(RenderData & rd, char const * blogPostUri);
 
 private:
     std::string m_UriBasePath;
@@ -50,7 +53,8 @@ private:
     std::string m_BlogPath;
     Redirections m_Redirections;
     Markdown m_BlogContents;
-    BlogEntries m_BlogEntriesSortedByDate;
+    BlogEntriesVector m_BlogEntriesSortedByDate;
+    BlogEntriesMap m_BlogEntries;
 };
 
 #endif

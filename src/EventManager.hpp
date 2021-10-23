@@ -32,7 +32,6 @@ public:
     bool Init(std::string = "127.0.0.1", uint16_t port = 9000);
     void SetDefaultCallback(EvFunction fn, EvUserData dat);
     void AddCallback(std::string url, EvFunction fn, EvUserData dat);
-    void AddChunkedCallback(std::string url, EvFunction fn, EvUserData dat, struct timeval chunk_timer);
 
 private:
     std::shared_ptr<ContentManager> m_ContentManager;

@@ -173,7 +173,7 @@ bool Markdown::HasMarkdownURI(std::string uriPath) const
     return HasMarkdownFile(uriPath.substr(m_UriBasePath.length() + 1, std::string::npos));
 }
 
-Markdowns const & Markdown::GetMarkdowns() const
+Markdowns & Markdown::GetMarkdowns()
 {
     return m_Markdowns;
 }

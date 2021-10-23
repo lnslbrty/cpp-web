@@ -22,7 +22,7 @@ public:
 
     bool HasMarkdownFile(std::string filePath) const;
     bool HasMarkdownURI(std::string uriPath) const;
-    Markdowns const & GetMarkdowns() const;
+    Markdowns & GetMarkdowns();
     std::shared_ptr<std::string> const & GetMarkdownHTML(std::string uriPath);
 
 private:
