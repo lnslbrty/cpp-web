@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.1.9)
 project(cpp-web)
 
+set(CPACK_PACKAGE_CONTACT "toni@impl.cc")
+set(CPACK_DEBIAN_PACKAGE_NAME "cpp-web")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_PACKAGE_VERSION_MAJOR 1)
+set(CPACK_PACKAGE_VERSION_MINOR 0)
+
+include(CPack)
+
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++17")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fpic -fno-omit-frame-pointer -fno-rtti -ffunction-sections -fdata-sections -fsanitize=address -fsanitize=leak")
 set(CMAKE_CXX_FLAGS_RELEASE "-Os -fpic -fomit-frame-pointer -ffunction-sections -fdata-sections -flto")
@@ -33,3 +41,6 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
     set_target_properties(cpp-web PROPERTIES LINK_FLAGS "-no-pie -flto -Wl,--gc-sections -Wl,-z,norelro -Wl,--hash-style=gnu -Wl,--build-id=none")
 endif()
 target_link_libraries(cpp-web stdc++fs pthread event magic)
+
+install(TARGETS cpp-web RUNTIME DESTINATION bin)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/wwwroot/ DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cpp-web/wwwroot)
