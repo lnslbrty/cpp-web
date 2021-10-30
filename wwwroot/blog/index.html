@@ -3,7 +3,7 @@
 <b>blabla</b>
 Test fn....: <b>{{ test_fn }}</b><br>
 Test RetFN.: <b>{{ test_return_true }}</b><br><br><br>
-{% if exists("blog_listing") and length(blog_listing) > 0 %}
+{% if exists("blog_listing") %}
 <table>
 ## for entry in blog_listing
     <tr>

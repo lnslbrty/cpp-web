@@ -80,7 +80,10 @@ bool Blog::Render(RequestResponse & rr, RenderData & rd, std::string & out)
     }
     else
     {
-        GetBlogPost(rd["blog_post"], rr.GetUriPath());
+        if (GetBlogPost(rd["blog_post"], rr.GetUriPath()) == false)
+        {
+            return false;
+        }
     }
 
     return true;
@@ -168,6 +171,12 @@ bool Blog::ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry 
     }
     blogEntry->published = blogMetadata["published"];
 
+    if (validateMetadata(blogMetadata, "accessAllowed") == false)
+    {
+        retval = false;
+    }
+    blogEntry->accessAllowed = blogMetadata["accessAllowed"];
+
     return retval;
 }
 
@@ -201,14 +210,35 @@ bool Blog::ValidateEntries()
 
 void Blog::FillRenderData(RenderData & re, BlogEntry const & be)
 {
-          re["filename"] = be->filename;
-          re["title"] = be->title;
-          re["tags"] = be->tags;
-          re["author"] = be->author;
-          re["createDate"] = be->createDate;
-          re["publishDate"] = be->publishDate;
-          re["published"] = be->published;
-          re["content"] = "";
+    re["filename"] = be->filename;
+    re["title"] = be->title;
+    re["tags"] = be->tags;
+    re["author"] = be->author;
+    {
+        char tmstr[64];
+        if (std::strftime(tmstr, sizeof(tmstr), "%c", std::localtime(&be->createDate)) > 0)
+        {
+            re["createDate"] = tmstr;
+        }
+        else
+        {
+            re["createDate"] = "<strftime error>";
+        }
+    }
+    {
+        char tmstr[64];
+        if (std::strftime(tmstr, sizeof(tmstr), "%c", std::localtime(&be->publishDate)) > 0)
+        {
+            re["publishDate"] = tmstr;
+        }
+        else
+        {
+            re["publishDate"] = "<strftime error>";
+        }
+    }
+    re["published"] = be->published;
+    re["accessAllowed"] = be->accessAllowed;
+    re["content"] = "";
 }
 
 void Blog::GenerateBlogListing(RenderData & rd)
@@ -230,14 +260,21 @@ void Blog::GenerateBlogListing(RenderData & rd)
     }
 }
 
-void Blog::GetBlogPost(RenderData & rd, char const * blogPostUri)
+bool Blog::GetBlogPost(RenderData & rd, char const * blogPostUri)
 {
     RenderData re;
 
     if (m_BlogContents.HasMarkdownFile(blogPostUri) == true)
     {
+        if (m_BlogEntries[blogPostUri]->accessAllowed == false)
+        {
+            return false;
+        }
+
         FillRenderData(re, m_BlogEntries[blogPostUri]);
         re["content"] = m_BlogContents.GetMarkdownHTML(blogPostUri)->c_str();
     }
     rd = re;
+
+    return true;
 }

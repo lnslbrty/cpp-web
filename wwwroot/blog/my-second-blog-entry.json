@@ -4,5 +4,6 @@
     "author": "lns",
     "createDate": "23.02.1989 23:59",
     "publishDate": "30.12.2020 1:00",
-    "published": true
+    "published": true,
+    "accessAllowed": false
 }

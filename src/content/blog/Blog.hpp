@@ -21,6 +21,7 @@ struct blog_entry
     std::time_t createDate;
     std::time_t publishDate;
     bool published;
+    bool accessAllowed;
 };
 
 using BlogMetadata = inja::json;
@@ -45,7 +46,7 @@ public:
     bool ValidateEntries();
     void FillRenderData(RenderData & re, BlogEntry const & be);
     void GenerateBlogListing(RenderData & rd);
-    void GetBlogPost(RenderData & rd, char const * blogPostUri);
+    bool GetBlogPost(RenderData & rd, char const * blogPostUri);
 
 private:
     std::string m_UriBasePath;
