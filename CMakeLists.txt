@@ -7,7 +7,11 @@ set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_PACKAGE_VERSION_MAJOR 1)
 set(CPACK_PACKAGE_VERSION_MINOR 0)
 
+find_package(PkgConfig REQUIRED)
 include(CPack)
+
+pkg_check_modules(LIBEVENT REQUIRED libevent)
+pkg_check_modules(LIBMAGIC REQUIRED libmagic)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++17")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fpic -fno-omit-frame-pointer -fno-rtti -ffunction-sections -fdata-sections -fsanitize=address -fsanitize=leak")
