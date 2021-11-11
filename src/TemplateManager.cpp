@@ -13,6 +13,12 @@ TemplateManager::TemplateManager()
         return true;
     });
     /*
+     * itoa(convertable);
+     */
+    AddInjaCallback("itoa", 1, [](inja::Arguments & args) {
+        return std::to_string(args.at(0)->get<int>());
+    });
+    /*
      * indent(input: str, width: int, first: bool, blank: bool);
      */
     AddInjaCallback("indent", 4, [](inja::Arguments & args) {
