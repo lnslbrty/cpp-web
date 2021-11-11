@@ -34,13 +34,13 @@ class Blog : public Content
 public:
     explicit Blog(std::string uriBasePath, std::string blogPath, std::string mainTemplatePath);
 
-    bool Init();
-    void Shutdown();
-    bool Render(RequestResponse & rr, RenderData & rd, std::string & out);
+    bool Init() override;
+    void Shutdown() override;
+    bool Render(RequestResponse & rr, RenderData & rd, std::string & out) override;
 
-    std::string & GetUriBasePath();
-    std::string const & GetMainTemplate() const;
-    Redirections & GetRedirections();
+    std::string & GetUriBasePath() override;
+    std::string const & GetMainTemplate() const override;
+    Redirections & GetRedirections() override;
 
     static bool ValidateAndSetMetdadata(BlogMetadata const & blogMetadata, BlogEntry & blogEntry);
     bool ValidateEntries();
