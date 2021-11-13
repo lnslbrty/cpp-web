@@ -216,7 +216,7 @@ void Blog::FillRenderData(RenderData & re, BlogEntry const & be)
     re["author"] = be->author;
     {
         char tmstr[64];
-        if (std::strftime(tmstr, sizeof(tmstr), "%c", std::localtime(&be->createDate)) > 0)
+        if (std::strftime(tmstr, sizeof(tmstr), "%d.%m.%Y %H:%M", std::localtime(&be->createDate)) > 0)
         {
             re["createDate"] = tmstr;
         }
@@ -227,7 +227,7 @@ void Blog::FillRenderData(RenderData & re, BlogEntry const & be)
     }
     {
         char tmstr[64];
-        if (std::strftime(tmstr, sizeof(tmstr), "%c", std::localtime(&be->publishDate)) > 0)
+        if (std::strftime(tmstr, sizeof(tmstr), "%d.%m.%Y %H:%M", std::localtime(&be->publishDate)) > 0)
         {
             re["publishDate"] = tmstr;
         }
