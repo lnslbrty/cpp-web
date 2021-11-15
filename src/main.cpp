@@ -61,6 +61,7 @@ int main(int argc, char ** argv)
 
     cmgr->RegisterModule(std::make_shared<Markdown>("/", wwwroot + "/pages", "index.html"));
     cmgr->RegisterModule(std::make_shared<Blog>("/blog", wwwroot + "/blog", "blog/index.html"));
+    cmgr->RegisterModule(std::make_shared<Blog>("/inherit", wwwroot + "/blog", "inherit/index.html"));
 
     if (cmgr->InitAll() == false)
     {

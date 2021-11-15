@@ -1,0 +1,35 @@
+{% extends "inherit/00_base.tmpl" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1>Index</h1>
+    <p class="important">
+        Welcome to my blog!
+    </p>
+
+{% if exists("blog_listing") %}
+    <table>
+## for entry in blog_listing
+        <tr>
+            <td>{{ loop.index1 }}</td>
+            <td>{{ entry.filename }}</td>
+            <td>{{ entry.title }}</td>
+            <td>{{ entry.tags }}</td>
+            <td>{{ entry.author }}</td>
+            <td>{{ entry.createDate }}</td>
+            <td>{{ entry.publishDate }}</td>
+            <td>{{ entry.published }}</td>
+            <td>
+                {{ indent(entry.content, 12, false, false) }}
+            </td>
+            <td>{% if loop.is_last == false %}more{% else %}eof{% endif %}<br>
+        </tr>
+## endfor
+    </table>
+{% endif %}
+{% endblock %}
