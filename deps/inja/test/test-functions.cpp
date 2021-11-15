@@ -3,7 +3,7 @@
 TEST_CASE("functions") {
   inja::Environment env;
 
-  json data;
+  inja::json data;
   data["name"] = "Peter";
   data["city"] = "New York";
   data["names"] = {"Jeff", "Seb", "Peter", "Tom"};
@@ -56,8 +56,8 @@ TEST_CASE("functions") {
   SUBCASE("length") {
     CHECK(env.render("{{ length(names) }}", data) == "4"); // Length of array
     CHECK(env.render("{{ length(name) }}", data) == "5");  // Length of string
-    // CHECK_THROWS_WITH( env.render("{{ length(5) }}", data), "[inja.exception.json_error]
-    // [json.exception.type_error.302] type must be array, but is number" );
+                                                           // CHECK_THROWS_WITH( env.render("{{ length(5) }}", data), "[inja.exception.json_error]
+                                                           // [json.exception.type_error.302] type must be array, but is number" );
   }
 
   SUBCASE("sort") {
@@ -70,6 +70,8 @@ TEST_CASE("functions") {
   SUBCASE("at") {
     CHECK(env.render("{{ at(names, 0) }}", data) == "Jeff");
     CHECK(env.render("{{ at(names, i) }}", data) == "Seb");
+    CHECK(env.render("{{ at(brother, \"name\") }}", data) == "Chris");
+    CHECK(env.render("{{ at(at(brother, \"daughters\"), 0) }}", data) == "Maria");
     // CHECK(env.render("{{ at(names, 45) }}", data) == "Jeff");
   }
 
@@ -86,7 +88,7 @@ TEST_CASE("functions") {
   }
 
   SUBCASE("round") {
-    CHECK(env.render("{{ round(4, 0) }}", data) == "4.0");
+    CHECK(env.render("{{ round(4, 0) }}", data) == "4");
     CHECK(env.render("{{ round(temperature, 2) }}", data) == "25.68");
     // CHECK_THROWS_WITH( env.render("{{ round(name, 2) }}", data), "[inja.exception.json_error]
     // [json.exception.type_error.302] type must be number, but is string" );
@@ -148,8 +150,7 @@ TEST_CASE("functions") {
     CHECK(env.render("{{ default(name, \"nobody\") }}", data) == "Peter");
     CHECK(env.render("{{ default(surname, \"nobody\") }}", data) == "nobody");
     CHECK(env.render("{{ default(surname, \"{{ surname }}\") }}", data) == "{{ surname }}");
-    CHECK_THROWS_WITH(env.render("{{ default(surname, lastname) }}", data),
-                      "[inja.exception.render_error] (at 1:21) variable 'lastname' not found");
+    CHECK_THROWS_WITH(env.render("{{ default(surname, lastname) }}", data), "[inja.exception.render_error] (at 1:21) variable 'lastname' not found");
   }
 
   SUBCASE("exists") {
@@ -166,10 +167,13 @@ TEST_CASE("functions") {
     CHECK(env.render("{{ existsIn(brother, \"parents\") }}", data) == "false");
     CHECK(env.render("{{ existsIn(brother, property) }}", data) == "true");
     CHECK(env.render("{{ existsIn(brother, name) }}", data) == "false");
-    CHECK_THROWS_WITH(env.render("{{ existsIn(sister, \"lastname\") }}", data),
-                      "[inja.exception.render_error] (at 1:13) variable 'sister' not found");
-    CHECK_THROWS_WITH(env.render("{{ existsIn(brother, sister) }}", data),
-                      "[inja.exception.render_error] (at 1:22) variable 'sister' not found");
+    CHECK_THROWS_WITH(env.render("{{ existsIn(sister, \"lastname\") }}", data), "[inja.exception.render_error] (at 1:13) variable 'sister' not found");
+    CHECK_THROWS_WITH(env.render("{{ existsIn(brother, sister) }}", data), "[inja.exception.render_error] (at 1:22) variable 'sister' not found");
+  }
+
+  SUBCASE("join") {
+    CHECK(env.render("{{ join(names, \" | \") }}", data) == "Jeff | Seb | Peter | Tom");
+    CHECK(env.render("{{ join(vars, \", \") }}", data) == "2, 3, 4, 0, -1, -2, -3");
   }
 
   SUBCASE("isType") {
@@ -190,12 +194,22 @@ TEST_CASE("functions") {
   }
 }
 
-TEST_CASE("callbacks") {
+TEST_CASE("assignments") {
   inja::Environment env;
-  json data;
+  inja::json data;
   data["age"] = 28;
 
-  env.add_callback("double", 1, [](inja::Arguments &args) {
+  CHECK(env.render("{% set new_hour=23 %}{{ new_hour }}", data) == "23");
+  CHECK(env.render("{% set time.start=18 %}{{ time.start }}pm", data) == "18pm");
+  CHECK(env.render("{% set v1 = \"a\" %}{% set v2 = \"b\" %}{% set var = v1 + v2 %}{{ var }}", data) == "ab");
+}
+
+TEST_CASE("callbacks") {
+  inja::Environment env;
+  inja::json data;
+  data["age"] = 28;
+
+  env.add_callback("double", 1, [](inja::Arguments& args) {
     int number = args.at(0)->get<int>();
     return 2 * number;
   });
@@ -206,7 +220,7 @@ TEST_CASE("callbacks") {
   });
 
   std::string greet = "Hello";
-  env.add_callback("double-greetings", 0, [greet](inja::Arguments args) { return greet + " " + greet + "!"; });
+  env.add_callback("double-greetings", 0, [greet](inja::Arguments) { return greet + " " + greet + "!"; });
 
   env.add_callback("multiply", 2, [](inja::Arguments args) {
     double number1 = args.at(0)->get<double>();
@@ -226,11 +240,11 @@ TEST_CASE("callbacks") {
     return number1.length();
   });
 
-  env.add_void_callback("log", 1, [](inja::Arguments args) {
-    int a = 2;
+  env.add_void_callback("log", 1, [](inja::Arguments) {
+
   });
 
-  env.add_callback("multiply", 0, [](inja::Arguments args) { return 1.0; });
+  env.add_callback("multiply", 0, [](inja::Arguments) { return 1.0; });
 
   CHECK(env.render("{{ double(age) }}", data) == "56");
   CHECK(env.render("{{ half(age) }}", data) == "14");
@@ -245,7 +259,7 @@ TEST_CASE("callbacks") {
 
   SUBCASE("Variadic") {
     env.add_callback("argmax", [](inja::Arguments& args) {
-      auto result = std::max_element(args.begin(), args.end(), [](const json* a, const json* b) { return *a < *b;});
+      auto result = std::max_element(args.begin(), args.end(), [](const inja::json* a, const inja::json* b) { return *a < *b; });
       return std::distance(args.begin(), result);
     });
 
@@ -256,7 +270,7 @@ TEST_CASE("callbacks") {
 
 TEST_CASE("combinations") {
   inja::Environment env;
-  json data;
+  inja::json data;
   data["name"] = "Peter";
   data["city"] = "Brunswick";
   data["age"] = 29;
@@ -282,4 +296,5 @@ TEST_CASE("combinations") {
   CHECK(env.render("{{ not true }}", data) == "false");
   CHECK(env.render("{{ not (true) }}", data) == "false");
   CHECK(env.render("{{ true or (true or true) }}", data) == "true");
+  CHECK(env.render("{{ at(list_of_objects, 1).b }}", data) == "3");
 }

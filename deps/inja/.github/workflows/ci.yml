@@ -16,24 +16,19 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          ubuntu-18.04-gcc-4.9,
-          ubuntu-18.04-gcc-5,
-          ubuntu-18.04-gcc-6,
           ubuntu-18.04-gcc-7,
           ubuntu-18.04-gcc-8,
           ubuntu-18.04-gcc-9,
-          ubuntu-18.04-clang-3.5,
-          ubuntu-18.04-clang-3.8,
-          ubuntu-18.04-clang-4.0,
+          ubuntu-20.04-gcc-10,
+          ubuntu-20.04-gcc-11,
           ubuntu-18.04-clang-5.0,
           ubuntu-18.04-clang-6.0,
           ubuntu-18.04-clang-7,
           ubuntu-18.04-clang-8,
           ubuntu-20.04-clang-9,
-          windows-2016-cl,
-          windows-2016-clang-cl,
-          windows-2016-clang,
-          windows-2016-gcc,
+          ubuntu-20.04-clang-10,
+          ubuntu-20.04-clang-11,
+          ubuntu-20.04-clang-11-no-exceptions,
           windows-2019-cl,
           windows-2019-clang-cl,
           windows-2019-clang,
@@ -46,21 +41,6 @@ jobs:
         ]
 
         include:
-          - name: ubuntu-18.04-gcc-4.9
-            os: ubuntu-18.04
-            compiler: gcc
-            version: "4.9"
-
-          - name: ubuntu-18.04-gcc-5
-            os: ubuntu-18.04
-            compiler: gcc
-            version: "5"
-
-          - name: ubuntu-18.04-gcc-6
-            os: ubuntu-18.04
-            compiler: gcc
-            version: "6"
-
           - name: ubuntu-18.04-gcc-7
             os: ubuntu-18.04
             compiler: gcc
@@ -76,20 +56,15 @@ jobs:
             compiler: gcc
             version: "9"
 
-          - name: ubuntu-18.04-clang-3.5
-            os: ubuntu-18.04
-            compiler: clang
-            version: "3.5"
+          - name: ubuntu-20.04-gcc-10
+            os: ubuntu-20.04
+            compiler: gcc
+            version: "10"
 
-          - name: ubuntu-18.04-clang-3.8
-            os: ubuntu-18.04
-            compiler: clang
-            version: "3.8"
-
-          - name: ubuntu-18.04-clang-4.0
-            os: ubuntu-18.04
-            compiler: clang
-            version: "4.0"
+          - name: ubuntu-20.04-gcc-11
+            os: ubuntu-20.04
+            compiler: gcc
+            version: "11"
 
           - name: ubuntu-18.04-clang-5.0
             os: ubuntu-18.04
@@ -116,25 +91,25 @@ jobs:
             compiler: clang
             version: "9"
 
-          - name: windows-2016-cl
-            os: windows-2016
-            compiler: cl
-
-          - name: windows-2016-clang-cl
-            os: windows-2016
-            compiler: clang-cl
-
-          - name: windows-2016-clang
-            os: windows-2016
+          - name: ubuntu-20.04-clang-10
+            os: ubuntu-20.04
             compiler: clang
+            version: "10"
+
+          - name: ubuntu-20.04-clang-11
+            os: ubuntu-20.04
+            compiler: clang
+            version: "11"
+
+          - name: ubuntu-20.04-clang-11-no-exceptions
+            os: ubuntu-20.04
+            compiler: clang
+            version: "11"
+            cmake_vars: "-DCMAKE_CXX_FLAGS=-fno-exceptions -DBUILD_TESTING=OFF -DBUILD_BENCHMARK=ON"
 
           - name: windows-2019-cl
             os: windows-2019
             compiler: cl
-
-          - name: windows-2016-gcc
-            os: windows-2016
-            compiler: gcc
 
           - name: windows-2019-clang-cl
             os: windows-2019
@@ -174,7 +149,7 @@ jobs:
             version: "12.2"
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - name: Install (Linux)
         if: runner.os == 'Linux'
@@ -256,6 +231,6 @@ jobs:
       - name: Build & Test Release
         run: |
           cmake -E remove_directory build
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_vars }}
           cmake --build build -j2
           cd build && ctest -j2 --output-on-failure

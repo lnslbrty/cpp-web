@@ -2,10 +2,12 @@
 
 TEST_CASE("loading") {
   inja::Environment env;
-  json data;
+  inja::json data;
   data["name"] = "Jeff";
 
-  SUBCASE("Files should be loaded") { CHECK(env.load_file(test_file_directory + "simple.txt") == "Hello {{ name }}."); }
+  SUBCASE("Files should be loaded") {
+    CHECK(env.load_file(test_file_directory + "simple.txt") == "Hello {{ name }}.");
+  }
 
   SUBCASE("Files should be rendered") {
     CHECK(env.render_file(test_file_directory + "simple.txt", data) == "Hello Jeff.");
@@ -27,10 +29,9 @@ TEST_CASE("loading") {
 TEST_CASE("complete-files") {
   inja::Environment env {test_file_directory};
 
-  for (std::string test_name : {"simple-file", "nested", "nested-line", "html"}) {
+  for (std::string test_name : {"simple-file", "nested", "nested-line", "html", "html-extend"}) {
     SUBCASE(test_name.c_str()) {
-      CHECK(env.render_file_with_json_file(test_name + "/template.txt", test_name + "/data.json") ==
-            env.load_file(test_name + "/result.txt"));
+      CHECK(env.render_file_with_json_file(test_name + "/template.txt", test_name + "/data.json") == env.load_file(test_name + "/result.txt"));
     }
   }
 
@@ -49,8 +50,7 @@ TEST_CASE("complete-files-whitespace-control") {
 
   for (std::string test_name : {"nested-whitespace"}) {
     SUBCASE(test_name.c_str()) {
-      CHECK(env.render_file_with_json_file(test_name + "/template.txt", test_name + "/data.json") ==
-            env.load_file(test_name + "/result.txt"));
+      CHECK(env.render_file_with_json_file(test_name + "/template.txt", test_name + "/data.json") == env.load_file(test_name + "/result.txt"));
     }
   }
 }
@@ -58,7 +58,7 @@ TEST_CASE("complete-files-whitespace-control") {
 TEST_CASE("global-path") {
   inja::Environment env {test_file_directory, "./"};
   inja::Environment env_result {"./"};
-  json data;
+  inja::json data;
   data["name"] = "Jeff";
 
   SUBCASE("Files should be written") {
@@ -73,7 +73,20 @@ TEST_CASE("include-without-local-files") {
   inja::Environment env {test_file_directory};
   env.set_search_included_templates_in_files(false);
 
-  SUBCASE("html") {
-    CHECK_THROWS_WITH(env.render_file_with_json_file("html/template.txt", "html/data.json"), "[inja.exception.render_error] (at 3:14) include '../test/data/html/header.txt' not found");
-  }
+  CHECK_THROWS_WITH(env.render_file_with_json_file("html/template.txt", "html/data.json"),
+                    "[inja.exception.render_error] (at 3:14) include 'header.txt' not found");
+}
+
+TEST_CASE("include-in-memory-and-file-template") {
+  inja::Environment env {test_file_directory};
+
+  inja::json data;
+  data["name"] = "Jeff";
+
+  CHECK_THROWS_WITH(env.render_file("include-both.txt", data), "[inja.exception.file_error] failed accessing file at '../test/data/body'");
+
+  const auto parsed_body_template = env.parse("Bye {{ name }}.");
+  env.include_template("body", parsed_body_template);
+
+  CHECK(env.render_file("include-both.txt", data) == "Hello Jeff. - Bye Jeff.");
 }
