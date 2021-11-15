@@ -19,7 +19,7 @@ int main(int argc, char ** argv)
 
     if (argc <= 1 || argc > 5)
     {
-        std::cout << "usage: cpp-web [HOST] [PORT] [WWWROOT]" << std::endl;
+        std::cout << "usage: cpp-web [HOST] [PORT] [WWWROOT]" << std::endl << std::endl;
         if (argc > 5)
         {
             return 1;

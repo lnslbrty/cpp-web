@@ -17,7 +17,7 @@
 ## for entry in blog_listing
         <tr>
             <td>{{ loop.index1 }}</td>
-            <td>{{ entry.filename }}</td>
+            <td><a href="{{ entry.filename }}">{{ entry.filename }}</a></td>
             <td>{{ entry.title }}</td>
             <td>{{ entry.tags }}</td>
             <td>{{ entry.author }}</td>
@@ -25,11 +25,16 @@
             <td>{{ entry.publishDate }}</td>
             <td>{{ entry.published }}</td>
             <td>
-                {{ indent(entry.content, 12, false, false) }}
+{{ indent(entry.content, 16, false, false) }}
             </td>
             <td>{% if loop.is_last == false %}more{% else %}eof{% endif %}<br>
         </tr>
 ## endfor
     </table>
 {% endif %}
+## if exists("blog_post")
+    <a href="{{ blog_post.filename }}">{{ blog_post.title }}</a><br>
+    {{ blog_post.publishDate }} by {{ blog_post.author }}<br>
+{{ indent(blog_post.content, 4, false, false) }}
+## endif
 {% endblock %}
