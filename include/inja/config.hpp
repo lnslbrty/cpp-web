@@ -1,12 +1,10 @@
-// Copyright (c) 2019 Pantor. All rights reserved.
-
 #ifndef INCLUDE_INJA_CONFIG_HPP_
 #define INCLUDE_INJA_CONFIG_HPP_
 
 #include <functional>
 #include <string>
 
-#include "string_view.hpp"
+#include "template.hpp"
 
 namespace inja {
 
@@ -25,7 +23,9 @@ struct LexerConfig {
   std::string expression_close {"}}"};
   std::string expression_close_force_rstrip {"-}}"};
   std::string comment_open {"{#"};
+  std::string comment_open_force_lstrip {"{#-"};
   std::string comment_close {"#}"};
+  std::string comment_close_force_rstrip {"-#}"};
   std::string open_chars {"#{"};
 
   bool trim_blocks {false};
@@ -54,6 +54,9 @@ struct LexerConfig {
     if (open_chars.find(comment_open[0]) == std::string::npos) {
       open_chars += comment_open[0];
     }
+    if (open_chars.find(comment_open_force_lstrip[0]) == std::string::npos) {
+      open_chars += comment_open_force_lstrip[0];
+    }
   }
 };
 
@@ -62,6 +65,8 @@ struct LexerConfig {
  */
 struct ParserConfig {
   bool search_included_templates_in_files {true};
+
+  std::function<Template(const std::string&, const std::string&)> include_callback;
 };
 
 /*!
